@@ -1,0 +1,43 @@
+// Project proposal
+
+//An introduction and description of the work to be undertaken.
+The project proposed is to remake qwop using JavaScript. This would mean using Phaser and it's physics system to simulate a body that acts like that of a human. The method used would be to have some of Phasers 'sprite's that are at different joints in the body that have distance constraints with other sprites so that they stay the same distance relative to each other like each end of an arm would. There would need to be other constraints on how far round an arm can bend round etc.
+The simulation should have something that emulates muscles that can be controlled with the qwop keys, so that the user can make the runner move. The Q key should drive the runner's right thigh forward and left thigh backward, and the W key should do the opposite.
+The O and P keys should do the same but for the calves.
+After making the physics simulation I would need to add graphics to the joints to make it look as well as run like a human. Another thing that would need to be added is a system to collision check when the man falls over, and measure how far the player got from the start. Then have it show your score and keep high scores etc.
+
+An extension goal is to make an ai module that would give input to the game with the aim of getting to the end of the race as fast as possible. It would take an output from the game of the rotations of the joints and other data needed to make the ai work, and would then give an input to the game that should be intelligent enough to run the 100m.
+https://goo.gl/Y5EA1B This paper had been written about evolving qwop gates using various genetic models. One thing that it found is that the original qwop wasn't deterministic with the inputs given to it, so one input to the game could give different scores on different tries. This made making the genetic algorithms work a lot harder as it would pick and choose different control methods as they got a higher score, but the problem was that this could be because they happened to get a higher score that time, rather than being an inherintely better control. If I get on to the extension, it will be to my benefit that as I am remaking the game and it can be made deterministic.
+
+
+//A statement of the Starting Point.
+So far have downloaded phaser and used some of the examples to mess around with their physics engine.
+
+
+//Description of the substance and structure of the project: key concepts, major work items, their relations and relative importance, data structures and algorithms.
+ 
+Major work items/substance: core/extension
+c1 - use the physics system to create the body parts put together with correct constraints on distances and rotations etc also give it the right inertia gravity and friction, all such that it acts like a body.
+c2 - adding graphics to the body that works with the body - correct rotations with the physics etc
+c3 - Make the runner controllable by the qwop keys. Add system to make it work out and show how far the runner has got. Add collision detection with the floor for the parts of the body that touch the floor when the runner falls over. Restart and check score when he falls over. Check whether the runner has finished the race, and record time of run.
+extension: create ai system:
+e1 - make an encoding scheme (or multiple to see which works best) that can be used to control input to the game. Each instantiated value of the scheme (runner) can be used to control the runner and will give the same score each time, given the game is deterministic.
+e2 - make a way for an ai module to be able to access the rotations of the different joints whilst it is running so that it can be more inteligent.
+e3 - Make a method that is able to test runners giving them a fitness score of how far they managed to run before falling over.
+e4 - Make a genetic algorithm that can repeatedly test runners, and mutate them with the effect of increasing the fitness of the runners over time.
+
+
+//A criterion which can later be used to determine whether the project has been a success.
+criteria for core project: have created a qwop game that works; all c1-3 works as described in the major work items section.
+
+criteria for extension: have created an ai module that can be plugged into the game to control it. The ai module will be successful if it can 'run like a human' when it completes the 100 meters. Complete the sections in parts e1-4
+
+
+//Plan of work, specifying a timetable and milestones.
+Not sure what I should write for this bit, I could use the c1-e4 but would I plan the extension in? they're not similar sized chunks.
+How many hours a week is normal/expected for a project?
+
+
+//Resource Declaration.
+Just laptop?
+
