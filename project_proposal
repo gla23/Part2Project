@@ -30,8 +30,6 @@ e4 - Make a genetic algorithm that can repeatedly test runners, and mutate them 
 //A criterion which can later be used to determine whether the project has been a success.
 criteria for core project: have created a qwop game that works; all c1-3 works as described in the major work items section.
 
-criteria for extension: have created an ai module that can be plugged into the game to control it. The ai module will be successful if it can 'run like a human' when it completes the 100 meters. Complete the sections in parts e1-4
-
 
 //Plan of work, specifying a timetable and milestones.
 Not sure what I should write for this bit, I could use the c1-e4 but would I plan the extension in? they're not similar sized chunks.
