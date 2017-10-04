@@ -5,6 +5,12 @@
 \usepackage[margin=25mm]{geometry}
 \usepackage{graphicx}
 \usepackage{parskip}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
 \begin{document}
 
 \begin{center}
@@ -32,39 +38,38 @@ George Andersen, Robinson College
 
 \section*{Introduction}
 
-\emph{The problem to be addressed.}
- 
- % qwop description
- The simulation should have something that emulates muscles that can be controlled with the qwop keys, so that the user can make the runner move. The Q key should drive the runner's right thigh forward and left thigh backward, and the W key should do the opposite. The O and P keys should do the same but for the calves.
+% QWOP Description
+QWOP is a 2008 ragdoll-based browser video game created by Bennett Foddy. Players control an athlete named "Qwop" using only the Q, W, O, and P keys. The aim of the game is to complete the 100m race without falling over, which is a lot harder than it first seems.
+A couple of years after the game was released on the internet, the game became an internet meme after its outbreak in December 2010. The game helped Foddy's site (Foddy.net) reach 30 million hits.
+
+QWOP uses a ragdoll physics simulation for the athlete. Each part of the runner's body is a rigid body with it's own velocity, rotation and other physical quantities. It has joint constraints with connecting rigid bodies which allows the body to move without ending up in improbable or impossible positions.
+The simulation also emulates muscles that can be controlled with the qwop keys, so that the user can make the runner move. The Q key drives the runner's right thigh forward and left thigh backward, and the W key does the opposite. The O and P keys do the same but for the calves.
+Though the objective of QWOP is simple, the game, ever since it was released, has been notorious for being difficult to master due to its controls with the Q, W, O and P keys.
 
  %Look up the correct terminology for this kind of system. Clearly you need to model some of the physics, but you perhaps also need to look up "forward kinematics", "inverse kinematics" and similar. An hour or two on Wikipedia now will help you work out the basics and how to describe your approach more precisely.
 
-% outline what your plans are (remake using JS + Phaser)
- The project proposed is to remake qwop using JavaScript. This would mean using Phaser and it's physics system to simulate a body that acts like that of a human. The method used would be to have some of Phasers 'sprite's that are at different joints in the body that have distance constraints with other sprites so that they stay the same distance relative to each other like each end of an arm would. There would need to be other constraints on how far round an arm can bend round etc.
+% Outline of plans (remake using JS + Phaser)
+The project I propose is to remake qwop in JavaScript using Phaser. Phaser has a physics system called P2 that can be used to recreate the physics behind qwop.
+
+Phaser has 'sprite's that are the main objects in the game. Each of these can be attached to a P2 physics body used in the P2 physics system. I can then use this system to give these bodies the correct physical properties.
+More details on how this will work can be found in the work to be done section.
 
 
- After making the physics simulation I would need to add graphics to the joints to make it look as well as run like a human. Another thing that would need to be added is a system to collision check when the man falls over, and measure how far the player got from the start. Then have i  show your score and keep high scores etc.
+%After making the physics simulation I would need to add graphics to the joints to make it look as well as run like a human. Another thing that would need to be added is a system to collision check when the man falls over, and measure how far the player got from the start. Then have it show your score and keep high scores etc just like in the real qwop.
 % Deterministic scoring, based on your later comments, sounds like something thing you would want to support.
  
-
- An extension goal is to make an ai module that would give input to the game with the aim of getting to the end of the race as fast as possible. It would take an output from the game of the rotations of the joints and other data needed to make the ai work, and would then give an input to the game that should be intelligent enough to run the 100m.
- https://dl.acm.org/citation.cfm?id=2598248 This paper had been written about evolving qwop gates using various genetic models.
-
-reimplement paper stuff?
-
-One thing that it found is that the original qwop wasn't deterministic with the inputs given to it, so one input to the game could give different scores on different tries. This made making the genetic algorithms work a lot harder as it would pick and choose different control methods as they got a higher score, but the problem was that this could be because they happened to get a higher score that time, rather than being an inherintely better control. If I get on to the extension, it will be to my benefit that as I am remaking the game and it can be made deterministic.
 
 \section*{Starting point}
 
 \emph{Describe existing state of the art, previous work in this area, libraries and databases to be used. Describe the state of any existing codebase that is to be built on.}
 
-One major codebase the project will be using is Phaser, a JavaScript library designed to help make games. So far I have downloaded phaser and used some of the examples to mess around with it's physics engine.
+One major codebase the project will be using is Phaser, the JavaScript library mentioned earlier, which is designed to help make games. So far I have downloaded phaser and used some of the examples to mess around with it's physics engine.
 
 \section*{Resources required}
 
 \emph{A note of the resources required and confirmation of access.}
 
-For this project I shall mainly use my own laptop that runs Windows. I will backup my code and the writeup on a private repository on GitHub, incase the laptop it is stored on laptop fails. I require no other special resources.
+For this project I shall mainly use my own laptop that runs Windows. I will backup my code and the writeup on a private repository on GitHub, incase the laptop it is stored on fails. I require no other special resources.
 
 \section*{Work to be done}
 
@@ -72,19 +77,17 @@ For this project I shall mainly use my own laptop that runs Windows. I will back
 
 The project breaks down into the following sub-projects:
 
+Each of these sections include researching how the task can be completed in the Phaser physics engine, and then creating it in the project.
+
 \begin{enumerate}
-
-% todo: neeten up and increase detail
-Major work items/substance: core/extension
-
-
-\item c1 - use the physics system to create the body parts put together with correct constraints on distances and rotations etc also give it the right inertia gravity and friction, all such that it acts like a body.
-
-\item c2 - adding graphics to the body that works with the body - correct rotations with the physics etc
-
-\item c3 - Make the runner controllable by the qwop keys. Add system to make it work out and show how far the runner has got. Add collision detection with the floor for the parts of the body that touch the floor when the runner falls over. Restart and check score when he falls over. Check whether the runner has finished the race, and record time of run.
-
-
+\item Create a rag doll model of the runner's body out of Phaser 'sprite's with correct distance constraints between sections so that it keeps shape whilst being dragged by gravity.
+\item Make the body have inertia, give the floor friction and apply other physics features so it acts like the runner rather than collapsing on itself.
+\item Give the body human like joint constraints.
+\item Add graphics to the body; give each 'sprite' joint an image that looks like the section of an athelete's body that it represents. Each image should rotate as it's corresponding body in the physics simulation does.
+\item Make the athlete controllable using the qwop keys; recieve input into the game from the qwop keys, and give the correct rotational force to each section of the body as in the original.
+\item Add a system that works out how far the runner has moved from the start, so that the user can be given a score. Display this on the screen.
+\item Add collision detection with the floor for the parts of the body that touch the floor when the runner falls over. Restart and display score when he falls over.
+\item Check whether the runner has finished the race by checking whether the distance traveled is over 100m, and if he has, record the time it took to complete the race.
 \end{enumerate}
 
 \section*{Success citeria}
@@ -93,35 +96,46 @@ Major work items/substance: core/extension
 
 %How will you evaluate the project? How can you determine "success"? Do you need to do a user study? Can you do something else to determine whether it "works"? Perhaps you can compare the output from a particular key combination in the original and your new version?
 
-The project will be a success if\ldots maybe done c1-whatever
+The project will be a success if it works in a similar way to the original qwop. This could be quantified by checking the athlete in both versions responds in similar ways to the same input key combinations.
 
 
 \section*{Possible extensions}
 
 {\em Potential further envisaged evaluation metrics or extensions.}
 
-If I achieve my main result early I shall try an experiment of creating an ai module that attempts to run the qwop man. It could be broken down into these sections:
+If I achieve my main result and still have spare time I shall try an experiment of creating an ai module that attempts to run the qwop man. It could be broken down into these sections:
 
-e1 - make an encoding scheme (or multiple to see which works best) that can be used to control input to the game. Each instantiated value of the scheme (runner) can be used to control the input to the game, and will give the same score each time, given the game is deterministic.
+\begin{enumerate}
+\item make an encoding scheme (or multiple to see which works best) that can be used to control input to the game. Each instantiated value of the scheme (runner) can be used to control the input to the game, and will give the same score each time, given the game is deterministic.
 
-e2 - make a way for an ai module to be able to access the rotations of the different joints whilst it is running so that it can be more inteligent by using that information to run.
+\item  make a way for an ai module to be able to access the rotations of the different joints whilst it is running so that it can be more inteligent by using that information to run.
 
-e3 - Make a method that is able to test runners giving them a fitness score of how far they managed to run before falling over.
+\item Make a method that is able to test runners giving them a fitness score of how far they managed to run before falling over.
+  
+\item Make a genetic algorithm that can repeatedly test runners, and mutate them with the effect of increasing the fitness of the runners over time.
+\end{enumerate}
 
-e4 - Make a genetic algorithm that can repeatedly test runners, and mutate them with the effect of increasing the fitness of the runners over time.
+ 
+% Old version of explanation
+%An extension goal is to make an ai module that would give input to the game with the aim of getting to the end of the race as fast as possible. It would take an output from the game of the rotations of the joints and other data needed to make the ai work, and would then give an input to the game that should be intelligent enough to run the 100m.
+\href{https://dl.acm.org/citation.cfm?id=2598248}{This Paper} has been written about evolving qwop gates using various genetic models.
+I could trying reimplementing some of the coding schemes or genetic algorithms the above paper uses, but rather than giving the output to the original game and capturing the information from the original game using a screen capture, I could use my own implementation.
+
+One thing that that the paper found is that the original qwop wasn't deterministic with the inputs given to it, so one input to the game could give different scores on different tries. This made making the genetic algorithms work a lot harder as it would pick and choose different control methods as they got a higher score, but the problem was that this could be because they happened to get a higher score that time, rather than being an inherintely better control. If I get on to the extension, it will be to my benefit that as I am remaking the game as I am in more control and aim for it to be deterministic.
+
 
 
 \section*{Timetable} \emph {A workplan of perhaps ten or so two-week work-packages, as well as milestones to be achieved along the way. Provide a target date for each milestone.}
 
 Planned starting date is \today.
 
-You need to put down what you will do for each fortnight between the start of the project and the hand-in date. Please list specific dates. You should schedule a week off for Christmas. As a rule of thumb, you need to schedule some time for research in October; have the core up and running in January so that you can present it working at the overseer review; perform the evaluation in February and early March, perhaps intermixed with revisions and improvements. Schedule two weeks in early March for "contingency time / extensions"; the rest of the time should be left for write-up.
+
 
 \begin{enumerate}
 
-\item \textbf{Michaelmas weeks 2--4} Learn to use X. Read book Y. Read papers Z.
+\item \textbf{Michaelmas weeks 2--4} Research how to get the physics engine to do what I want
 
-\item \textbf{Michaelmas weeks 5--6} Do preliminary test of Q.
+\item \textbf{Michaelmas weeks 5--6} Start implementation of physics -- go through first steps in the Work to be done section.
 
 \item \textbf{Michaelmas weeks 7--8} Start implementation of main task A.
 
