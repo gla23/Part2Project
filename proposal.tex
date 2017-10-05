@@ -20,7 +20,7 @@ Computer Science Tripos -- Part II -- Project Proposal\\[4mm]
 QWOP in JavaScript \\[4mm]
 
 \large
-George Andersen, Robinson College
+George Andersen, gla23, Robinson College
 
 \today
 
@@ -40,7 +40,7 @@ George Andersen, Robinson College
 
 % QWOP Description
 QWOP is a 2008 ragdoll-based browser video game created by Bennett Foddy. Players control an athlete named "Qwop" using only the Q, W, O, and P keys. The aim of the game is to complete the 100m race without falling over, which is a lot harder than it first seems.
-A couple of years after the game was released on the internet, the game became an internet meme after its outbreak in December 2010. The game helped Foddy's site (Foddy.net) reach 30 million hits.
+A couple of years after the game was released, it went viral and helped Foddy's site reach 30 million hits.
 
 QWOP uses a ragdoll physics simulation for the athlete. Each part of the runner's body is a rigid body with it's own velocity, rotation and other physical quantities. It has joint constraints with connecting rigid bodies which allows the body to move without ending up in improbable or impossible positions.
 The simulation also emulates muscles that can be controlled with the qwop keys, so that the user can make the runner move. The Q key drives the runner's right thigh forward and left thigh backward, and the W key does the opposite. The O and P keys do the same but for the calves.
@@ -61,19 +61,27 @@ More details on how this will work can be found in the work to be done section.
 
 \section*{Starting point}
 
-\emph{Describe existing state of the art, previous work in this area, libraries and databases to be used. Describe the state of any existing codebase that is to be built on.}
+%\emph{Describe existing state of the art, previous work in this area, libraries and databases to be used. Describe the state of any existing codebase that is to be built on.}
 
-One major codebase the project will be using is Phaser, the JavaScript library mentioned earlier, which is designed to help make games. So far I have downloaded phaser and used some of the examples to mess around with it's physics engine.
+One major codebase the project will be using is Phaser, the JavaScript library designed to make games.
+So far I have downloaded Phaser and used some of the examples to mess around with it's physics engine.
+
+I have also spent time familiarising myself with the tools I will be using for the project and working out a work flow. These include Git, GitHub, WampServer, Phaser and Sublime text with LaTeXTools.
 
 \section*{Resources required}
 
-\emph{A note of the resources required and confirmation of access.}
+%\emph{A note of the resources required and confirmation of access.}
 
-For this project I shall mainly use my own laptop that runs Windows. I will backup my code and the writeup on a private repository on GitHub, incase the laptop it is stored on fails. I require no other special resources.
+For this project I shall use my own laptop that runs Windows.
+My Laptop's specifications:
+Intel Core i7-5500U, 16 GB RAM, 1 TB+8 GB SSHD, AMD R9 4 GB GPU.
+Incase this laptop fails, I have another laptop I can use, or I could use the computers in the lab. I will backup my code and the writeup on a private repository on GitHub, so that if it does fail, I can access the repository on these other computers.
+
+I require no other special resources.
 
 \section*{Work to be done}
 
-\emph{Describe the technical work.}
+%\emph{Describe the technical work.}
 
 The project breaks down into the following sub-projects:
 
@@ -92,16 +100,23 @@ Each of these sections include researching how the task can be completed in the 
 
 \section*{Success citeria}
 
-\emph{Describe what you expect to be able to demonstrate at the end of the project and how you are going to evaluate your achievement.}
+%\emph{Describe what you expect to be able to demonstrate at the end of the project and how you are going to evaluate your achievement.}
 
 %How will you evaluate the project? How can you determine "success"? Do you need to do a user study? Can you do something else to determine whether it "works"? Perhaps you can compare the output from a particular key combination in the original and your new version?
 
-The project will be a success if it works in a similar way to the original qwop. This could be quantified by checking the athlete in both versions responds in similar ways to the same input key combinations.
+The project will be a success if it works in a similar way to the original qwop. This can be quantified by checking the athlete has the same physical qualities that make it seem human, and the same  gameplay items that make the game work. To do this I can check each section of the 'work to be done' section has been completed.
 
+Another thing that will make the project a success is that the game is deterministic; gives the same score each time a certain key combination is entered. I want to support this as it will be helpful for an extension idea that is explained in the possible extensions section. 
+To test this I can code an input into the game that can be repeated, rather than use input from the keyboard. If the game is deterministic, it will give the same score each time. A different method I could use is to make an AutoHotkey script that gives an input, and it can be run multiple times to check the score is the same each time.
+
+Another evaluation metric I can use is does the athelete respond in similar ways in both versions to the same input key combinations? This could be checked by programming the same input into both the original and my version, and checking the athelete goes through the same type of movement. 
+As the original QWOP isn't deterministic, and I plan for my version to be, the movement is unlikely to match exactly. This test however would still be useful, as it can check the movements are similar.
+Since I will not have access to the internal workings of the original qwop game, and therefore cannot code the input directly, It would be better to use the AutoHotkey script method mentioned earlier to give the desired consistent input.
+For example if q and p are pressed for 500 milliseconds then swap to w and o, swapping back and forth every 500 milliseconds, does the athlete move in the same way?
 
 \section*{Possible extensions}
 
-{\em Potential further envisaged evaluation metrics or extensions.}
+%{\em Potential further envisaged evaluation metrics or extensions.}
 
 If I achieve my main result and still have spare time I shall try an experiment of creating an ai module that attempts to run the qwop man. It could be broken down into these sections:
 
@@ -118,42 +133,61 @@ If I achieve my main result and still have spare time I shall try an experiment 
  
 % Old version of explanation
 %An extension goal is to make an ai module that would give input to the game with the aim of getting to the end of the race as fast as possible. It would take an output from the game of the rotations of the joints and other data needed to make the ai work, and would then give an input to the game that should be intelligent enough to run the 100m.
-\href{https://dl.acm.org/citation.cfm?id=2598248}{This Paper} has been written about evolving qwop gates using various genetic models.
-I could trying reimplementing some of the coding schemes or genetic algorithms the above paper uses, but rather than giving the output to the original game and capturing the information from the original game using a screen capture, I could use my own implementation.
+\href{https://dl.acm.org/citation.cfm?id=2598248}{This Paper} has been written about evolving qwop gates.
 
-One thing that that the paper found is that the original qwop wasn't deterministic with the inputs given to it, so one input to the game could give different scores on different tries. This made making the genetic algorithms work a lot harder as it would pick and choose different control methods as they got a higher score, but the problem was that this could be because they happened to get a higher score that time, rather than being an inherintely better control. If I get on to the extension, it will be to my benefit that as I am remaking the game as I am in more control and aim for it to be deterministic.
+The writer of this paper tests various methods of using genetic algorithms to evolve a gait (walking motion) for the original qwop.
+To do this he uses a similar approach to the one I have described above. The difference is that since he is using the original game, there is no access to the internal workings of the game, and therefore can only get information from the game using a screen capture. He uses this to work out the current score, and this is the only information he uses to evolve the runners. Since I am making my own version, I have access to the data in the game, and so could make more inteligent AI that uses this information to it's advantage.
 
+I could trying reimplementing some of the coding schemes or genetic algorithms the above paper uses, but I will have more options as I have the extra data to use.
 
+The paper found that the original qwop wasn't deterministic with the inputs given to it, so one input to the game could give different scores on different tries. This made it harder for the genetic algorithms to be effective. 
+The problem was that when it would pick the runners as they got a higher score, this could be because they happened to get a higher score that time, rather than being an inherintely better runner.
+If I get on to the extension, it will be to my benefit that I am remaking the game as I aim for it to be deterministic.
 
-\section*{Timetable} \emph {A workplan of perhaps ten or so two-week work-packages, as well as milestones to be achieved along the way. Provide a target date for each milestone.}
+%Another possible extension is making another model that isn't a human. %suggested by alan
 
-Planned starting date is \today.
+\section*{Timetable}
+%\emph {A workplan of perhaps ten or so two-week work-packages, as well as milestones to be achieved along the way. Provide a target date for each milestone.}
 
+%Planned starting date is \today.
+
+% You need to put down what you will do for each fortnight between the start of the project and the hand-in date. Please list specific dates. You should schedule a week off for Christmas. As a rule of thumb, you need to schedule some time for research in October; have the core up and running in January so that you can present it working at the overseer review; perform the evaluation in February and early March, perhaps intermixed with revisions and improvements. Schedule two weeks in early March for "contingency time / extensions"; the rest of the time should be left for write-up.
 
 
 \begin{enumerate}
 
-\item \textbf{Michaelmas weeks 2--4} Research how to get the physics engine to do what I want
+\item \textbf{Michaelmas weeks 3 and 4: 19th October-1st November} After handing in project proposal, I can start researching how exactly to get the physics engine to do what I want.
 
-\item \textbf{Michaelmas weeks 5--6} Start implementation of physics -- go through first steps in the Work to be done section.
+\item \textbf{Michaelmas weeks 5 and 6: 2nd - 15th November} Start implementation of the model of runner -- go through first steps in the Work to be done section.
 
-\item \textbf{Michaelmas weeks 7--8} Start implementation of main task A.
+\item \textbf{Michaelmas weeks 7 and 8: 16th - 30th November}
+Add more of the physics features, work out how to apply the joint restrictions, add these to the model etc
 
-\item \textbf{Michaelmas vacation} Finish A and start main task B.
+\item \textbf{Michaelmas vacation: 1st December - 17th January}
+Get core up and running, work on how the program will work as a whole with keeping score etc. Take time off.
 
-\item \textbf{Lent weeks 0--2} Write progress report. Generate corpus of
-  test examples. Finish task B.
+\item \textbf{Lent weeks 1 and 2: 18th - 31st January}
+Make sure all the sections in work to be done are complete so I can present it working at the overseer review.
 
-\item \textbf{Lent weeks 3--5} Run main experiments and achieve working project.
+Write progress report so that it can be handed in on the 2nd Feb. 
 
-\item \textbf{Lent weeks 6--8} Second main deliverable here. 
-\item \textbf{Easter vacation:} Extensions and writing dissertation main
-  chapters.
+\item \textbf{Lent weeks 3 and 4: 1st - 14th February}
+Start evaluation of project
 
-\item \textbf{Easter term 0--2:}  Further evaluation and complete dissertation.
+\item \textbf{Lent weeks 5 and 6: 15th - 28th February}
+Give time for revisions and improvements of project, whilst finishing evaluation of the project.
 
-\item \textbf{Easter term 3:} Proof reading and then an early submission
-  so as to concentrate on examination revision.
+\item \textbf{Lent weeks 7 and 8: 1st - 14th March}
+Contingency time/extensions
+
+\item \textbf{Easter vacation: 15 March - 25th April}
+Write dissertation main chapters.
+
+\item \textbf{Easter weeks 1 and 2: 26th April - 9th April}
+Further evaluation and complete dissertation.
+
+\item \textbf{Easter term week 3: 10th - 17th May}
+Proof reading and then an early submission so as to concentrate on examination revision.
 
 \end{enumerate}
 
