@@ -5,17 +5,17 @@ Phase 1 Project Selection Status Report
 
 Name: George Andersen
 
-College: Robinson College
+College: Robinson
 
 User Identifier: gla23
 
-Director of Studies: Alan Mycroft
+Director of Studies: Dr. Alan Mycroft
 
 Please complete 1, 2 and 3 below.
 
 1. Please write 100 words on your current project ideas.
 
-The game QWOP puts players in control of a rag doll athlete, and the aim is to complete the 100m race without falling over. The athlete's 2D limbs are rendered on the screen, and the Q key drives the runner's right thigh forward and left thigh backward, and the W key does the opposite. The O and P keys do the same but for the calves.
+The game QWOP puts players in keyboard control of a rag doll athlete, and the aim is to complete the 100m race without falling over. The athlete's 2D limbs are rendered on the screen, and the Q key drives the runner's right thigh forward and left thigh backward, and the W key does the opposite. The O and P keys do the same but for the calves.
 I propose to remake QWOP using a Javascript library called Phaser, designed for making games. It has a system of 'sprite's that can be used to render the graphics for each limb, and the rag doll physics can then be made between them.
 An extension idea is to build an AI agent that can complete the race, the faster the better.
 
@@ -34,7 +34,3 @@ If so indicate below what, and what it is needed for.
 Windows laptop: Intel Core i7-5500U, 16 GB RAM, 1 TB+8 GB SSHD, AMD R9 4 GB GPU.
 Will be used for the research, coding, write up etc.
 Will be backing up on GitHub.
-
-% Other things I would need to do is add a system to check when you fall over, measure how far you are from the start and show your score/keep high scores etc.
-% You need to provide a touch more detail on the game itself -- it renders an image of the athlete's limbs on the screen? How do the keys control the athlete? What's hard about this task?
-%See if you can also be more precise. For example, you say "make a body out of joints". How exactly will this be modelled in Phaser? As a sequence of cylinders connected with joints? Does Phaser have the correct primitives for this, and does this map nicely to QWOP?
