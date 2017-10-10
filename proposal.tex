@@ -39,8 +39,9 @@ George Andersen, gla23, Robinson College
 \section*{Introduction}
 
 % QWOP Description
-QWOP is a 2008 ragdoll-based browser video game created by Bennett Foddy. Players control an athlete named "Qwop" using only the Q, W, O, and P keys. The aim of the game is to complete the 100m race without falling over, which is a lot harder than it first seems.
-A couple of years after the game was released, it went viral and helped Foddy's site reach 30 million hits.
+QWOP is a 2008 ragdoll-based browser video game created by Bennett Foddy. Players control an athlete named "Qwop" using only the Q, W, O, and P keys. The aim of the game is to complete the 100m race without falling over, which is a lot harder than it first seems. 
+Once the athlete reaches the end of the 100m, the player is given the time they did it in. If a player can complete the 100m, they can then try to do it as quickly as possible. After the game went viral in 2010, people have been trying to break the world record, one speedrun video attempting this on YouTube has 2.5 million views.
+%The game helped Foddy's site reach 30 million hits.
 
 QWOP uses a ragdoll physics simulation for the athlete. Each part of the runner's body is a rigid body with it's own velocity, rotation and other physical quantities. It has joint constraints with connecting rigid bodies which allows the body to move without ending up in improbable or impossible positions.
 The simulation also emulates muscles that can be controlled with the qwop keys, so that the user can make the runner move. The Q key drives the runner's right thigh forward and left thigh backward, and the W key does the opposite. The O and P keys do the same but for the calves.
@@ -51,7 +52,7 @@ Though the objective of QWOP is simple, the game, ever since it was released, ha
 % Outline of plans (remake using JS + Phaser)
 The project I propose is to remake qwop in JavaScript using Phaser. Phaser has a physics system called P2 that can be used to recreate the physics behind qwop.
 
-Phaser has 'sprite's that are the main objects in the game. Each of these can be attached to a P2 physics body used in the P2 physics system. I can then use this system to give these bodies the correct physical properties.
+Phaser has 'sprite's that are the main objects in the game. Each of these can be attached to a P2 physics body used in Phaser's P2 physics system. I can then use this system to give these bodies the correct physical properties.
 More details on how this will work can be found in the work to be done section.
 
 
@@ -64,7 +65,7 @@ More details on how this will work can be found in the work to be done section.
 %\emph{Describe existing state of the art, previous work in this area, libraries and databases to be used. Describe the state of any existing codebase that is to be built on.}
 
 One major codebase the project will be using is Phaser, the JavaScript library designed to make games.
-So far I have downloaded Phaser and used some of the examples to mess around with it's physics engine.
+So far I have downloaded Phaser and used some of the examples to play around with it's physics engine.
 
 I have also spent time familiarising myself with the tools I will be using for the project and working out a work flow. These include Git, GitHub, WampServer, Phaser and Sublime text with LaTeXTools.
 
@@ -90,7 +91,7 @@ Each of these sections include researching how the task can be completed in the 
 \begin{enumerate}
 \item Create a rag doll model of the runner's body out of Phaser 'sprite's with correct distance constraints between sections so that it keeps shape whilst being dragged by gravity.
 \item Make the body have inertia, give the floor friction and apply other physics features so it acts like the runner rather than collapsing on itself.
-\item Give the body human like joint constraints.
+\item Add constraints on how far a joint can rotate. Add these constraints on the model of the athlete so that the runner has human like joint constraints.
 \item Add graphics to the body; give each 'sprite' joint an image that looks like the section of an athelete's body that it represents. Each image should rotate as it's corresponding body in the physics simulation does.
 \item Make the athlete controllable using the qwop keys; recieve input into the game from the qwop keys, and give the correct rotational force to each section of the body as in the original.
 \item Add a system that works out how far the runner has moved from the start, so that the user can be given a score. Display this on the screen.
