@@ -39,21 +39,22 @@ George Andersen, gla23, Robinson College
 \section*{Introduction}
 
 % QWOP Description
-QWOP is a 2008 ragdoll-based browser video game created by Bennett Foddy. Players control an athlete using only the Q, W, O, and P keys. The aim of the game is to complete a 100m race without falling over, which is a lot harder than it first seems. 
-Once the athlete reaches the end of the 100m, the player is given the time they did it in. If a player can complete the 100m, they can then try to do it as quickly as possible. After the game went viral in 2010, people have been trying to break the world record, one speed run video attempting this on YouTube has 2.5 million views.
+QWOP is a 2008 ragdoll-based browser video game created by Bennett Foddy. Players control an athlete using only the Q, W, O, and P keys. The aim of the game is to complete a 100m race without falling over, which is a lot harder than it first seems.
+Once the athlete reaches the end of the 100m, the player is given the time taken to complete the race. If a player can complete the 100m they can then try to do it as quickly as possible. After the game went viral in 2010, people have been trying to break the world record, one speed-run video attempting this on YouTube has 2.5 million views.
 %The game helped Foddy's site reach 30 million hits.
 
 QWOP uses a ragdoll physics simulation for the athlete. Each part of the runner's body is a rigid body with its own velocity, rotation and other physical quantities. It has joint constraints with connecting rigid bodies which allows the body to move without ending up in improbable or impossible positions.
-The simulation also emulates muscles that can be controlled with the Q, W, O and P keys, so that the user can make the runner move. The Q key drives the runner's right thigh forward and left thigh backward, and the W key does the opposite. The O and P keys do the same but for the calves.
-Though the objective of QWOP is simple, the game, ever since it was released, has been notorious for being difficult to master due to its controls with the Q, W, O and P keys.
+The simulation also emulates muscles that can be controlled with the Q, W, O and P keys, so that the user can make the runner move. 
+Whilst the Q key is held down, the runner's right thigh is driven forward and his left thigh is driven backward, and the W key does the opposite. The O and P keys do the same but for the calves.
+Though the objective of QWOP is simple, it has been notorious for being difficult to master due to its controls with the Q, W, O and P keys.
 
  %Look up the correct terminology for this kind of system. Clearly you need to model some of the physics, but you perhaps also need to look up "forward kinematics", "inverse kinematics" and similar. An hour or two on Wikipedia now will help you work out the basics and how to describe your approach more precisely.
 
 % Outline of plans (remake using JS + Phaser)
-In this project I will remake QWOP in JavaScript using Phaser. Phaser has a physics system called P2 that can be used to recreate the physics behind QWOP.
+In this project I will make a new build of QWOP in JavaScript using Phaser. Phaser has a physics system called P2 that can be used to recreate the physics behind QWOP.
 
-Phaser has objects called \emph{sprites} which can be used to build the game. Each of these can be attached to a P2 physics body used in Phaser's P2 physics system. I can then build on this system to give these bodies the correct physical properties.
-More details on how this will work can be found in the work to be done section.
+Phaser has objects called \emph{sprites} which can be used to create the game. Each of these can be attached to a P2 physics body used in Phaser's P2 physics system. I can then build on this system to give these bodies the correct physical properties.
+More details on how this will work can be found in the Work to be done section.
 
 
 %After making the physics simulation I would need to add graphics to the joints to make it look as well as run like a human. Another thing that would need to be added is a system to collision check when the man falls over, and measure how far the player got from the start. Then have it show your score and keep high scores etc just like in the real qwop.
@@ -91,16 +92,30 @@ The project breaks down into the following sub-projects:
 
 Each of these sections include researching how the task can be completed in the Phaser physics engine, and then creating it in the project.
 
+
+ 
+
+
+\newcommand{\WorkA}{Create a ragdoll model of the runner's body out of Phaser sprites with correct distance constraints between sections so that it keeps together whilst collapsing to the floor. }
+\newcommand{\WorkB}{Ensure the body has inertia, give the floor friction and apply other physics features so the body acts like a runner rather than collapsing on itself. }
+\newcommand{\WorkC}{Make the athlete controllable using the Q, W, O and P keys. Receive this input into the game, and give the correct rotational force to each section of the body as in the original game. }
+\newcommand{\WorkD}{Add constraints on how far a joint can rotate. Add these constraints on the model of the athlete so the runner has human-like joint constraints. }
+\newcommand{\WorkE}{Add graphics to the body; render an image for each sprite joint in order that together they look like an athlete's body. }
+\newcommand{\WorkF}{Calculate and display the distance the runner has moved from the start and how long it has taken. }
+\newcommand{\WorkG}{Add collision detection with the floor for the parts of the body that touch the floor when the runner falls over. Restart the game when the athlete falls over. }
+\newcommand{\WorkH}{Check whether the runner has finished the race by checking whether the distance travelled is over 100m, and if so, record the time it took to complete the race. }
+
 \begin{enumerate}
-\item Create a ragdoll model of the runner's body out of Phaser sprites with correct distance constraints between sections so that it keeps together whilst collapsing to the floor.
-\item Ensure the body has inertia, give the floor friction and apply other physics features so it acts like a runner rather than collapsing on itself.
-\item Add constraints on how far a joint can rotate. Add these constraints on the model of the athlete so the runner has human like joint constraints.
-\item Add graphics to the body; give each sprite joint an image so together they look like an athlete's body.
-\item Make the athlete controllable using the Q, W, O and P keys. Receive this input into the game, and give the correct rotational force to each section of the body as in the original game.
-\item Calculate how far the runner has moved from the start and determine the user's score. Display this on the screen.
-\item Add collision detection with the floor for the parts of the body that touch the floor when the runner falls over. Restart the game when the athlete falls over.
-\item Check whether the runner has finished the race by checking whether the distance travelled is over 100m, and if so, record the time it took to complete the race.
+\item \WorkA
+\item \WorkB
+\item \WorkC
+\item \WorkD
+\item \WorkE
+\item \WorkF
+\item \WorkG
+\item \WorkH
 \end{enumerate}
+
 
 \section*{Success criteria}
 
@@ -111,15 +126,15 @@ Each of these sections include researching how the task can be completed in the 
 %TODO: user study? and optionally deterministic.
 The project will be a success if it works in a similar way to the original QWOP. This can be quantified by checking the athlete has the same physical qualities that make it seem human, and the same gameplay items that make the game work. To do this I can check each section of the work to be done section has been completed.
 
-if have enough time for extension
+One way I could test the project (the other option is discussed in the Possible extensions section) is a user study. In this study I would aim to gain some quantitative data.
+For example after playing each version for 10 minutes, what was the average distance travelled over these runs? How much time did each run take? Did the scores of each participant increase over time, and how could these changes be modelled for each version?
+I would also collect some qualitative data via a questionnaire to discover which game they found most enjoyable, which they thought they did better on, which game felt more responsive to their input, and other comments.
 
-Another thing that will make the project a success is that the game is deterministic; gives the same score each time a certain key combination is entered. I want to support this as it will be helpful for an extension idea that is explained in the possible extensions section.
-To test this I can code an input into the game that can be repeated, rather than use input from the keyboard. If the game is deterministic, it will give the same score each time. A different method I could use is to make an AutoHotkey script that gives an input, and it can be run multiple times to check the score is the same each time.
+Even though I am not aiming to replicate the behaviour of the original QWOP exactly, another evaluation metric I could use is does the athlete respond in similar ways in both versions to the same inputs? This could be checked by programming the same input into both the original and my version, and checking the athlete goes through the same type of movement. 
+%As the original QWOP isn't deterministic, and I plan for my version to be, the movement is unlikely to match exactly. This test however would still be useful, as can check the movements are similar.
+Since I will not have access to the internal workings of the original QWOP game, and therefore cannot code the input directly, I could use an AutoHotkey script to give the desired input consistently.
 
-Another evaluation metric I can use is does the athlete respond in similar ways in both versions to the same input key combinations? This could be checked by programming the same input into both the original and my version, and checking the athlete goes through the same type of movement. 
-As the original QWOP isn't deterministic, and I plan for my version to be, the movement is unlikely to match exactly. This test however would still be useful, as it can check the movements are similar.
-Since I will not have access to the internal workings of the original QWOP game, and therefore cannot code the input directly, It would be better to use the AutoHotkey script method mentioned earlier to give the desired consistent input.
-For example if q and p are pressed for 500 milliseconds then swap to w and o, swapping back and forth every 500 milliseconds, does the athlete move in the same way?
+
 
 \section*{Possible extensions}
 
@@ -141,19 +156,22 @@ If I achieve my main result and still have spare time I shall try an experiment 
 % Old version of explanation
 %An extension goal is to make an ai module that would give input to the game with the aim of getting to the end of the race as fast as possible. It would take an output from the game of the rotations of the joints and other data needed to make the ai work, and would then give an input to the game that should be intelligent enough to run the 100m.
 
-
-\href{https://dl.acm.org/citation.cfm?id=2598248}{This Paper} \cite{ray2014evolving} has been written about evolving QWOP gaits.
-The writer of this paper tests various genetic algorithms to evolve a gait (walking motion) for the original QWOP.
-To do this he uses a similar approach to the one I have described above. The difference is that since he is using the original game, there is no access to the internal workings of the game, and therefore can only get information from the game using a screen capture.
+Previous work includes \href{https://dl.acm.org/citation.cfm?id=2598248}{this paper} \cite{ray2014evolving} that has been written about evolving QWOP gaits.
+The writer tests various genetic algorithms to evolve a gait (walking motion) for the original QWOP.
+To do this he uses a similar approach to the one I have described above. The difference is that since he is using the original game, there is no access to the internal workings of the game, and therefore he can only get information from the game using a screen capture.
 He uses this to work out the current score, and this is the only information he uses to evolve the runners. Since I am making my own version, I have access to the data in the game, and so I could use this information directly.
 
 I could trying reimplementing some of the coding schemes or genetic algorithms the above paper uses, but I will have more options as I have the extra data to use.
 
-%TODO: fix this -with deterministic stuff
-The paper found that the original qwop wasn't deterministic with the inputs given to it, so one input to the game could give different scores on different tries. This made it harder for the genetic algorithms to be effective. 
-The problem was that when it would pick the runners as they got a higher score, this could be because they happened to get a higher score that time, rather than being an inherintely better runner.
-If I get on to the extension, it will be to my benefit that I am remaking the game as I aim for it to be deterministic.
+The paper found that it was hard to input into the original QWOP so that it acted deterministically.
+This made it harder for the genetic algorithms to be effective as one input to the game could give different scores on different tries.
+%The problem was that when it would pick the runners as they got a higher score, this could be because they happened to get a higher score that time, rather than being an inherently better runner.
+For this reason I shall make it an extension aim for my version to be deterministic.
 
+If I have enough time and get onto the extension, I will not do a user study and instead evaluate the AI agent that I produce.
+% Make deterministic an extension
+%Another thing that will make the project a success is that the game is deterministic; gives the same score each time a certain key combination is entered. I want to support this as it will be helpful for an extension idea that is explained in the possible extensions section.
+%To test this I can code an input into the game that can be repeated, rather than use input from the keyboard. If the game is deterministic, it will give the same score each time. A different method I could use is to make an AutoHotkey script that gives an input, and it can be run multiple times to check the score is the same each time.
 
 %Another possible extension is making another model that isn't a human. %suggested by alan
 
@@ -167,51 +185,60 @@ If I get on to the extension, it will be to my benefit that I am remaking the ga
 
 \begin{enumerate}
 %Michaelmas weeks 3 and 4: 
-\item \textbf{19th October-1st November} After handing in project proposal, I can start researching how exactly to get the physics engine to do what I want.
+\item \textbf{19th October-1st November} After handing in project proposal, I can start researching how exactly to get the physics engine to do what I want. 
 
 %Michaelmas weeks 5 and 6:
-\item \textbf{2nd - 15th November} Start implementation of the model of runner -- go through first steps in the Work to be done section.
+\item \textbf{2nd - 15th November} Start implementation of the model of runner; \WorkA
+\WorkB
+
 
 %Michaelmas weeks 7 and 8: 
 \item \textbf{16th - 30th November}
-Add more of the physics features, work out how to apply the joint restrictions, add these to the model etc
+\WorkC
+\WorkD
 
 %Michaelmas vacation
 \item \textbf{1st - 14th December}
-Student getaway with church, travel home and visit my sister in Italy with parents
-\item \textbf{15th - 21st December}
-Get core up and running, work on how the program will work as a whole with keeping score etc.
-\item \textbf{22th - 28th December}
-Week off for Christmas
+Start of Michaelmas vacation: Go on student getaway with church, travel home, and visit my sister in Italy with parents.
+\item \textbf{15th - 23rd December}
+\WorkE
+\WorkF
+\item \textbf{24th - 28th December}
+Time off for Christmas
 \item \textbf{29th December - 8th January}
-
+\WorkG
+\WorkH
 \item \textbf{9th - 14th January}
-Ciccu getaway and move back to Cambridge
+Go on Ciccu getaway before moving back to Cambridge for Lent term.
 
 %Lent weeks 1 and 2: 
-\item \textbf{18th - 31st January}
-Make sure all the sections in work to be done are complete so I can present it working at the overseer review.
-Write progress report so that it can be handed in on the 2nd Feb. 
+\item \textbf{15th - 31st January}
+Finish off all the sections in work to be done so that I can present the core game working at the overseer review.
+Write progress report so that it can be handed in before noon on the 2nd Feb.
 
 %Lent weeks 3 and 4: 
 \item \textbf{1st - 14th February}
-Start evaluation of project
+Contingency time/extensions -- extra time here in case previous work sections take longer than expected. If work moves quicker than expected I will have started to investigate making the AI, and can continue doing so.
+Depending on this, I will decide which evaluation option to use then start designing the user study or choosing how to evaluate the AI.
 
-%Lent weeks 5 and 6: 
+
+%Lent weeks 5 and 6:
 \item \textbf{15th - 28th February}
-Give time for revisions and improvements of project, whilst finishing evaluation of the project.
+Work on evaluating the project. Depending on previous decisions, either finish designing and perform the user study, or evaluate the AI agent.
+Give time for revisions and improvements of project.
 
-%Lent weeks 7 and 8: 
+%Lent weeks 7 and 8:
 \item \textbf{1st - 14th March}
-Contingency time/extensions
+Start writing dissertation main chapters.
+
 
 %Easter vacation:
 \item \textbf{15 March - 25th April}
-Write dissertation main chapters.
+Complete the dissertation first draft so that it can be handed in on the 23rd (the day before the first day of Easter full term) so that there is time to incorporate feedback.
 
-%Easter weeks 1 and 2: 
-\item \textbf{26th April - 9th April}
-Further evaluation and complete dissertation.
+%Easter weeks 1 and 2:
+\item \textbf{26th April - 9th May}
+Take into account feedback and work on enhancing draft and refactoring into the final version.
 
 %Easter term week 3:
 \item \textbf{10th - 17th May}
