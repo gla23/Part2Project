@@ -11,7 +11,12 @@ function preload() {
 
 var sprite1;
 var sprite2;
+var sprite3;
+var sprite4;
+var sprite5;
 var cursors;
+
+
 
 function create() {
 
@@ -31,44 +36,61 @@ function create() {
 
     game.physics.p2.enable([sprite1, sprite2, sprite3, sprite4, sprite5]);
 
+    sprite5.body.xv = 10;
+    sprite5.body.yv = 0;
+    sprite5.body.xa = 1;
+    sprite5.body.ya = 0;
+
     game.physics.p2.gravity.y = 500
-
-    //sprite1.body.mass = 100;
-
     //sprite2.body.gravity.y = 500;
-    //fsprite3.body.gravity.y = 500;
+    //sprite3.body.gravity.y = 500;
 
     var constraint = game.physics.p2.createDistanceConstraint(sprite1, sprite2, 150);
     var constraint = game.physics.p2.createDistanceConstraint(sprite2, sprite3, 150);
     var constraint = game.physics.p2.createDistanceConstraint(sprite2, sprite4, 150);
     var constraint = game.physics.p2.createDistanceConstraint(sprite3, sprite4, 150);
-    var constraint = game.physics.p2.createDistanceConstraint(sprite2, sprite5, 110);
+    //var constraint = game.physics.p2.createDistanceConstraint(sprite2, sprite5, 110);
 
     text = game.add.text(20, 20, 'move with arrow keys', { fill: '#ffffff' });
 
     cursors = game.input.keyboard.createCursorKeys();
-
+    
 }
+
+function constrainVelocity(sprite, maxVelocity) {  var body = sprite.body, angle, currVelocitySqr, vx, vy;  vx = body.data.velocity[0];  vy = body.data.velocity[1];  currVelocitySqr = vx * vx + vy * vy;  if (currVelocitySqr > maxVelocity * maxVelocity) {    angle = Math.atan2(vy, vx);    vx = Math.cos(angle) * maxVelocity;    vy = Math.sin(angle) * maxVelocity;    body.data.velocity[0] = vx;    body.data.velocity[1] = vy;    console.log('limited speed to: '+maxVelocity);  }}
 
 function render() {
    game.debug.text('x ' + sprite1.body.x, 32, 32);
 }
 
 function applyAngularForce(spriteA, spriteB, force) {
-    spriteA.body.force = [30,30];
-    console.log(5);
+
+    console.log(7);
 }
 
 function update() {
 
+    //sprite5.body.xv += sprite5.body.xa;
+    //sprite5.body.yv += sprite5.body.ya;
+    //sprite5.body.moveDown(yv);
+    //sprite5.body.moveRight(xv);
+
 	sprite1.body.velocity.x = 0;
-    sprite1.body.velocity.y /= 3;
+    sprite1.body.velocity.y /= 100;
 
     sprite5.body.angularVelocity /= 2;
 
     if (cursors.left.isDown)
     {
-    	applyAngularForce(sprite5, sprite2, 30);
+        //sprite5.body.velocity.x += 30;
+        //a += 3
+        sprite5.body.velocity.y += 50;
+        constrainVelocity(sprite5, 200);
+        //console.log(a);
+        console.log(sprite5.body.velocity.y);
+        //sprite5.body.acceleration = [30,30];
+        //sprite1.body.immovable = true;
+        //applyAngularForce(sprite5, sprite2, 30);
     }
     else if (cursors.right.isDown)
     {
@@ -84,6 +106,8 @@ function update() {
     {
         sprite1.body.moveDown(400);
     }
+    // My own not broken physics :(
 
 }
+
 
