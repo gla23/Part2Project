@@ -22,6 +22,11 @@ var KKey;
 var HKey;
 var LKey;
 
+var SKey;
+var DKey;
+var AKey;
+var FKey;
+
 
 function create() {
 
@@ -30,11 +35,15 @@ function create() {
     back.width = 960;
     back.height = 540;
 
-    cursors = game.input.keyboard.createCursorKeys();
     JKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
     KKey = game.input.keyboard.addKey(Phaser.Keyboard.K);
     HKey = game.input.keyboard.addKey(Phaser.Keyboard.H);
     LKey = game.input.keyboard.addKey(Phaser.Keyboard.L);
+
+    SKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
+    DKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
+    AKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
+    FKey = game.input.keyboard.addKey(Phaser.Keyboard.F);
 
     // Define variables specifying the model of the body
     var bodyScale = 0.9;
@@ -213,7 +222,7 @@ function create() {
 
 
 function render() {
-   game.debug.text('Use KJHL and UpDownLeftRight to move the right and left leg respectively.', 32, 32);
+   game.debug.text('Use JKHL and SDAF to move the right and left leg respectively.', 32, 32);
 }
 
 function applyAngularForce(spriteA, spriteB, force) {
@@ -224,16 +233,16 @@ var musclePower = 15;
 
 function update() {
 
-    if (cursors.left.isDown) {
-        upperLegLeft.body.applyForce([0, musclePower],0,0);
-    } else if (cursors.right.isDown) {
-        upperLegLeft.body.applyForce([0,-musclePower],0,0);
+    if (SKey.isDown) {
+        lowerLegLeft.body.applyForce([0, musclePower],0,0);
+    } else if (DKey.isDown) {
+        lowerLegLeft.body.applyForce([0,-musclePower],0,0);
     }
 
-    if (cursors.up.isDown) {
-        lowerLegLeft.body.applyForce([0,-musclePower],0,0);
-    } else if (cursors.down.isDown) {
-        lowerLegLeft.body.applyForce([0, musclePower],0,0);     
+    if (AKey.isDown) {
+        upperLegLeft.body.applyForce([0, musclePower],0,0);
+    } else if (FKey.isDown) {
+        upperLegLeft.body.applyForce([0,-musclePower],0,0);     
     }
     
 
