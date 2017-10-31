@@ -73,7 +73,6 @@ function create() {
     lowerLegLeftStartY = upperLegLeftStartY + Math.cos(upperLegLeftAngle)*upperLegHeight;
     lowerLegLeftEndX = lowerLegLeftStartX + Math.sin(lowerLegLeftAngle)*lowerLegHeight;
     lowerLegLeftEndY = lowerLegLeftStartY + Math.cos(lowerLegLeftAngle)*lowerLegHeight;
-
     upperLegLeftX = (upperLegLeftStartX+lowerLegLeftStartX)/2;
     upperLegLeftY = (upperLegLeftStartY+lowerLegLeftStartY)/2;
     lowerLegLeftX = (lowerLegLeftStartX+lowerLegLeftEndX)/2;
@@ -81,11 +80,13 @@ function create() {
     shoeLeftX = lowerLegLeftEndX + shoeXOffset*Math.cos(shoeLeftAngle) + shoeLegDistance*Math.sin(shoeLeftAngle);
     shoeLeftY = lowerLegLeftEndY - shoeXOffset*Math.sin(shoeLeftAngle) + shoeLegDistance*Math.cos(shoeLeftAngle);
 
+    // Add the sprites in the position as if all the angles were 0
     torso        = game.add.sprite(torsoX, torsoY, 'limb');
     upperLegLeft = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight/2, 'limb');
     lowerLegLeft = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight+lowerLegHeight/2, 'limb');
     shoeLeft     = game.add.sprite(upperLegLeftStartX+shoeXOffset,upperLegLeftStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
 
+    // Change the dimensions of the sprites as specified by the model defined earlier
     torso.width  = torsoWidth;
     torso.height = torsoHeight;
     upperLegLeft.width  = upperLegWidth;
@@ -113,6 +114,8 @@ function create() {
 
 
     // Make the physics bodies have correct physics properties - values guessed and incomplete
+    // hipLeft.enableMotor();
+    // hipLeft.setMotorSpeed(0.1);
     upperLegLeft.body.angularDamping = 0.8;
     lowerLegLeft.body.angularDamping = 0.8;
     upperLegLeft.body.damping = 0.4;
@@ -135,22 +138,15 @@ function create() {
     var kneeLeft = game.physics.p2.createRevoluteConstraint(lowerLegLeft, [0,-lowerLegHeight/2],upperLegLeft,[0,upperLegHeight/2],10000)
     var ankleLeft = game.physics.p2.createRevoluteConstraint(shoeLeft, [-shoeXOffset,-shoeLegDistance],lowerLegLeft,[0,lowerLegHeight/2],10000)
 
-    
-
-    // hipLeft.enableMotor();
-    // hipLeft.setMotorSpeed(0.1);
+    // Give the joints the restrictions as defined earlier
     hipLeft.upperLimit = hipMaxAngle;
     hipLeft.lowerLimit = hipMinAngle;
     hipLeft.lowerLimitEnabled = true;
     hipLeft.upperLimitEnabled = true;
-
-
     kneeLeft.upperLimit = kneeMaxAngle;
     kneeLeft.lowerLimit = kneeMinAngle;
     kneeLeft.lowerLimitEnabled = true;
     kneeLeft.upperLimitEnabled = true;
-
-
     ankleLeft.upperLimit = ankleMaxAngle;
     ankleLeft.lowerLimit = ankleMinAngle;
     ankleLeft.lowerLimitEnabled = true;
@@ -160,7 +156,7 @@ function create() {
 
 
 function render() {
-   game.debug.text('xv: ' + lowerLegLeft.body.velocity.x, 32, 32);
+   game.debug.text('Use arrow keys to move the legs.', 32, 32);
 }
 
 function applyAngularForce(spriteA, spriteB, force) {
@@ -178,9 +174,9 @@ function update() {
     }
 
     if (cursors.up.isDown) {
-        lowerLegLeft.body.applyForce([0, musclePower],0,0);
+        lowerLegLeft.body.applyForce([0,-musclePower],0,0);
     } else if (cursors.down.isDown) {
-        lowerLegLeft.body.applyForce([0,-musclePower],0,0);     
+        lowerLegLeft.body.applyForce([0, musclePower],0,0);     
     }
     
 
