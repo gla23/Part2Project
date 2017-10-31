@@ -213,7 +213,7 @@ function create() {
 
 
 function render() {
-   game.debug.text('Use arrow keys to move the legs.', 32, 32);
+   game.debug.text('Use KJHL and UpDownLeftRight to move the right and left leg respectively.', 32, 32);
 }
 
 function applyAngularForce(spriteA, spriteB, force) {
@@ -238,15 +238,15 @@ function update() {
     
 
     if (JKey.isDown) {
-        upperLegRight.body.applyForce([0, musclePower],0,0);
+        lowerLegRight.body.applyForce([0, musclePower],0,0);
     } else if (KKey.isDown) {
-        upperLegRight.body.applyForce([0,-musclePower],0,0);
+        lowerLegRight.body.applyForce([0,-musclePower],0,0);
     }
 
     if (HKey.isDown) {
-        lowerLegRight.body.applyForce([0,-musclePower],0,0);
+        upperLegRight.body.applyForce([0, musclePower],0,0);
     } else if (LKey.isDown) {
-        lowerLegRight.body.applyForce([0, musclePower],0,0);     
+        upperLegRight.body.applyForce([0,-musclePower],0,0);     
     }
 }
 
