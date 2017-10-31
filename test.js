@@ -48,9 +48,13 @@ function create() {
     var lowerLegHeight = 120*bodyScale;
     var lowerLegWidth = 18*bodyScale;
     
-    var upperLegLeftAngle = Phaser.Math.degToRad( 15); //Starting angle of upperleg.
-    var lowerLegLeftAngle = Phaser.Math.degToRad(-45) + upperLegLeftAngle; //Starting angle of lowerleg.
-    var shoeLeftAngle     = Phaser.Math.degToRad( 20) + lowerLegLeftAngle; //Starting angle of the shoe.
+    var upperLegLeftAngle = Phaser.Math.degToRad(-5);
+    var lowerLegLeftAngle = Phaser.Math.degToRad(-35) + upperLegLeftAngle;
+    var shoeLeftAngle     = Phaser.Math.degToRad( 20) + lowerLegLeftAngle;
+
+    var upperLegRightAngle = Phaser.Math.degToRad( 35);
+    var lowerLegRightAngle = Phaser.Math.degToRad(-35) + upperLegRightAngle;
+    var shoeRightAngle     = Phaser.Math.degToRad( 20) + lowerLegRightAngle;
 
     // Specifies the correct joint constaints
     var  hipMaxAngle = Phaser.Math.degToRad( 115);
@@ -80,11 +84,28 @@ function create() {
     shoeLeftX = lowerLegLeftEndX + shoeXOffset*Math.cos(shoeLeftAngle) + shoeLegDistance*Math.sin(shoeLeftAngle);
     shoeLeftY = lowerLegLeftEndY - shoeXOffset*Math.sin(shoeLeftAngle) + shoeLegDistance*Math.cos(shoeLeftAngle);
 
+    upperLegRightStartX = torsoX+legSeperator;
+    upperLegRightStartY = torsoY+torsoHeight/2;
+    lowerLegRightStartX = upperLegRightStartX + Math.sin(upperLegRightAngle)*upperLegHeight;
+    lowerLegRightStartY = upperLegRightStartY + Math.cos(upperLegRightAngle)*upperLegHeight;
+    lowerLegRightEndX = lowerLegRightStartX + Math.sin(lowerLegRightAngle)*lowerLegHeight;
+    lowerLegRightEndY = lowerLegRightStartY + Math.cos(lowerLegRightAngle)*lowerLegHeight;
+    upperLegRightX = (upperLegRightStartX+lowerLegRightStartX)/2;
+    upperLegRightY = (upperLegRightStartY+lowerLegRightStartY)/2;
+    lowerLegRightX = (lowerLegRightStartX+lowerLegRightEndX)/2;
+    lowerLegRightY = (lowerLegRightStartY+lowerLegRightEndY)/2;
+    shoeRightX = lowerLegRightEndX + shoeXOffset*Math.cos(shoeRightAngle) + shoeLegDistance*Math.sin(shoeRightAngle);
+    shoeRightY = lowerLegRightEndY - shoeXOffset*Math.sin(shoeRightAngle) + shoeLegDistance*Math.cos(shoeRightAngle);
+
+
     // Add the sprites in the position as if all the angles were 0
     torso        = game.add.sprite(torsoX, torsoY, 'limb');
     upperLegLeft = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight/2, 'limb');
     lowerLegLeft = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight+lowerLegHeight/2, 'limb');
     shoeLeft     = game.add.sprite(upperLegLeftStartX+shoeXOffset,upperLegLeftStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
+    upperLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight/2, 'limb');
+    lowerLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight+lowerLegHeight/2, 'limb');
+    shoeRight     = game.add.sprite(upperLegRightStartX+shoeXOffset,upperLegRightStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
 
     // Change the dimensions of the sprites as specified by the model defined earlier
     torso.width  = torsoWidth;
@@ -95,12 +116,18 @@ function create() {
     lowerLegLeft.height = lowerLegHeight;
     shoeLeft.width = shoeSize;
     shoeLeft.height = shoeSize/20*9;
+    upperLegRight.width  = upperLegWidth;
+    upperLegRight.height = upperLegHeight;
+    lowerLegRight.width  = lowerLegWidth;
+    lowerLegRight.height = lowerLegHeight;
+    shoeRight.width = shoeSize;
+    shoeRight.height = shoeSize/20*9;
 
 
 	// Start the P2 Physics engine and add the sprites to it.
 	game.physics.startSystem(Phaser.Physics.P2JS);
     game.physics.p2.gravity.y = 150; //400
-    game.physics.p2.enable([torso, upperLegLeft, lowerLegLeft, shoeLeft]);
+    game.physics.p2.enable([torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight]);
     torso.body.mass *= 6;
 
     // Create collision groups so that the limbs do not collide with each other
@@ -111,6 +138,9 @@ function create() {
     lowerLegLeft.body.setCollisionGroup(athleteCollisionGroup);
     upperLegLeft.body.setCollisionGroup(athleteCollisionGroup);
     shoeLeft.body.setCollisionGroup(athleteCollisionGroup);
+    lowerLegRight.body.setCollisionGroup(athleteCollisionGroup);
+    upperLegRight.body.setCollisionGroup(athleteCollisionGroup);
+    shoeRight.body.setCollisionGroup(athleteCollisionGroup);
 
 
     // Make the physics bodies have correct physics properties - values guessed and incomplete
@@ -133,10 +163,24 @@ function create() {
     lowerLegLeft.body.rotation = -lowerLegLeftAngle;
     shoeLeft.body.rotation = -shoeLeftAngle;
 
+    upperLegRight.body.x = upperLegRightX;
+    upperLegRight.body.y = upperLegRightY;
+    lowerLegRight.body.x = lowerLegRightX;
+    lowerLegRight.body.y = lowerLegRightY;
+    shoeRight.body.x = shoeRightX;
+    shoeRight.body.y = shoeRightY;
+    upperLegRight.body.rotation = -upperLegRightAngle;
+    lowerLegRight.body.rotation = -lowerLegRightAngle;
+    shoeRight.body.rotation = -shoeRightAngle;
+
     // Create joints between limbs
-    var  hipLeft = game.physics.p2.createRevoluteConstraint(upperLegLeft, [0,-upperLegHeight/2],torso,[-legSeperator, torsoHeight/2],10000)
-    var kneeLeft = game.physics.p2.createRevoluteConstraint(lowerLegLeft, [0,-lowerLegHeight/2],upperLegLeft,[0,upperLegHeight/2],10000)
-    var ankleLeft = game.physics.p2.createRevoluteConstraint(shoeLeft, [-shoeXOffset,-shoeLegDistance],lowerLegLeft,[0,lowerLegHeight/2],10000)
+    var  hipLeft = game.physics.p2.createRevoluteConstraint(upperLegLeft, [0,-upperLegHeight/2],torso,[-legSeperator, torsoHeight/2],10000);
+    var kneeLeft = game.physics.p2.createRevoluteConstraint(lowerLegLeft, [0,-lowerLegHeight/2],upperLegLeft,[0,upperLegHeight/2],10000);
+    var ankleLeft = game.physics.p2.createRevoluteConstraint(shoeLeft, [-shoeXOffset,-shoeLegDistance],lowerLegLeft,[0,lowerLegHeight/2],10000);
+    var  hipRight = game.physics.p2.createRevoluteConstraint(upperLegRight, [0,-upperLegHeight/2],torso,[legSeperator, torsoHeight/2],10000);
+    var kneeRight = game.physics.p2.createRevoluteConstraint(lowerLegRight, [0,-lowerLegHeight/2],upperLegRight,[0,upperLegHeight/2],10000);
+    var ankleRight = game.physics.p2.createRevoluteConstraint(shoeRight, [-shoeXOffset,-shoeLegDistance],lowerLegRight,[0,lowerLegHeight/2],10000);
+
 
     // Give the joints the restrictions as defined earlier
     hipLeft.upperLimit = hipMaxAngle;
@@ -151,6 +195,19 @@ function create() {
     ankleLeft.lowerLimit = ankleMinAngle;
     ankleLeft.lowerLimitEnabled = true;
     ankleLeft.upperLimitEnabled = true;
+    
+    hipRight.upperLimit = hipMaxAngle;
+    hipRight.lowerLimit = hipMinAngle;
+    hipRight.lowerLimitEnabled = true;
+    hipRight.upperLimitEnabled = true;
+    kneeRight.upperLimit = kneeMaxAngle;
+    kneeRight.lowerLimit = kneeMinAngle;
+    kneeRight.lowerLimitEnabled = true;
+    kneeRight.upperLimitEnabled = true;
+    ankleRight.upperLimit = ankleMaxAngle;
+    ankleRight.lowerLimit = ankleMinAngle;
+    ankleRight.lowerLimitEnabled = true;
+    ankleRight.upperLimitEnabled = true;
     
 }
 
@@ -181,15 +238,15 @@ function update() {
     
 
     if (JKey.isDown) {
-
+        upperLegRight.body.applyForce([0, musclePower],0,0);
     } else if (KKey.isDown) {
-
+        upperLegRight.body.applyForce([0,-musclePower],0,0);
     }
 
     if (HKey.isDown) {
-
+        lowerLegRight.body.applyForce([0,-musclePower],0,0);
     } else if (LKey.isDown) {
-
+        lowerLegRight.body.applyForce([0, musclePower],0,0);     
     }
 }
 
