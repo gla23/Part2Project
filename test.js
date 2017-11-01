@@ -153,7 +153,7 @@ function create() {
     game.physics.p2.updateBoundsCollisionGroup();
 
     for (var i = sprites.length - 1; i >= 0; i--) {
-        sprites[i].body.friction = 0;
+        sprites[i].body.friction = playerFriction;
         sprites[i].body.setCollisionGroup(athleteCollisionGroup);
     }
 
@@ -236,9 +236,10 @@ function resetRunner() {
 }
 
 function render() {
-    game.debug.text('Use QWOP keys as normal, or JKHL and SDAF to move each muscle in the right and left leg respectively.', 32, 32);
+    game.debug.text('Use QWOP keys as normal, or JKHL and SDAF to move each muscle separately.', 32, 32);
+    game.debug.text('Press T to restart.', 32, 64);
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
-        game.debug.text('Applying balancing force.', 32, 64);
+        game.debug.text('Applying balancing force.', 32, 96);
     }
 }
 
@@ -265,7 +266,8 @@ function setAll(a, v) {
 }
 var musclePower = 20; //175 with motor, 15 without
 var stabalisingPower = 10;
-var stabalisingAngle = 40
+var stabalisingAngle = 40;
+var playerFriction = 1000;
 var hipPower = 1;
 function update() {
 
