@@ -9,17 +9,23 @@ function preload() {
     game.load.image('background', 'assets/sky.png ');
 }
 
-var torso;
-var upperLegLeft;
-var upperLegRight;
-var lowerLegLeft;
-var lowerLegRight;
+var torso, upperLegLeft, upperLegRight;
+var lowerLegLeft, lowerLegRight;
+var QKey, WKey, OKey, PKey, ResetRunnerKey;
+var JKey, KKey, HKey, LKey, SKey, DKey, AKey, FKey;
 
-var QKey, WKey, OKey, PKey;
-var JKey, KKey, HKey, LKey;
-var SKey, DKey, AKey, FKey;
+// Specifies the correct joint constraints
+var  hipMaxAngle = Phaser.Math.degToRad( 105);
+var  hipMinAngle = Phaser.Math.degToRad(-20 );
+var kneeMaxAngle = Phaser.Math.degToRad( 2  );
+var kneeMinAngle = Phaser.Math.degToRad(-115);
+var ankleMaxAngle = Phaser.Math.degToRad( 20);
+var ankleMinAngle = Phaser.Math.degToRad(-20);
 
-var ResetRunnerKey;
+var bodyScale = 0.8;
+var legSeperator = 11*bodyScale;
+
+var torsoMass = 3;
 
 function create() {
 
@@ -44,13 +50,16 @@ function create() {
     OKey = game.input.keyboard.addKey(Phaser.Keyboard.O);
     PKey = game.input.keyboard.addKey(Phaser.Keyboard.P);
 
-    resetRunnerKey = game.input.keyboard.addKey(Phaser.Keyboard.T);
+    resetRunnerKey = game.input.keyboard.addKey(Phaser.Keyboard.E);
+    resetRunnerKey.onDown.add(resetRunner,this);
 
-
+    toggleJointsKey = game.input.keyboard.addKey(Phaser.Keyboard.T);
+    toggleJointsKey.onDown.add(toggleJointPower,this);
+    
     // Define variables specifying the model of the body
     torsoX = 500;
     torsoY = 130;
-    var bodyScale = 0.8;
+
     musclePower *= bodyScale;
     var torsoHeight = 180*bodyScale;
     var torsoWidth = 70*bodyScale;
@@ -68,20 +77,9 @@ function create() {
     lowerLegRightAngle = Phaser.Math.degToRad(-35) + upperLegRightAngle;
     shoeRightAngle     = Phaser.Math.degToRad( 20) + lowerLegRightAngle;
 
-    // Specifies the correct joint constraints
-    var  hipMaxAngle = Phaser.Math.degToRad( 115);
-    var  hipMinAngle = Phaser.Math.degToRad(-20 );
-    var kneeMaxAngle = Phaser.Math.degToRad( 5  );
-    var kneeMinAngle = Phaser.Math.degToRad(-135);
-    var ankleMaxAngle = Phaser.Math.degToRad( 20);
-    var ankleMinAngle = Phaser.Math.degToRad(-20);
-
-    var torsoMass = 4;
-    var legSeperator = 15*bodyScale;
-
-    var shoeSize = 100*bodyScale;
-    var shoeLegDistance = 10*bodyScale;
-    var shoeXOffset = 20*bodyScale;
+    shoeSize = 100*bodyScale;
+    shoeLegDistance = 10*bodyScale;
+    shoeXOffset = 20*bodyScale;
 
 
     // Gets the positions the parts need to be moved to once created
@@ -141,7 +139,7 @@ function create() {
     
     // Start the P2 Physics engine and add the sprites to it.
     game.physics.startSystem(Phaser.Physics.P2JS);
-    game.physics.p2.gravity.y = 500; //400
+    game.physics.p2.gravity.y = gravity;
     game.physics.p2.enable([torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight]);
     torso.body.mass *= torsoMass;
 
@@ -205,7 +203,11 @@ function create() {
     kneeRight.lowerLimit = kneeMinAngle;
     ankleRight.upperLimit = ankleMaxAngle;
     ankleRight.lowerLimit = ankleMinAngle;
-    
+}
+
+function toggleJointPower() {
+    // Toggle joints holding their angle
+    jointsPower = !jointsPower;
 }
 
 function resetRunner() {
@@ -236,81 +238,76 @@ function resetRunner() {
 }
 
 function render() {
-    game.debug.text('Use QWOP keys as normal, or JKHL and SDAF to move each muscle separately.', 32, 32);
-    game.debug.text('Press T to restart.', 32, 64);
+    game.debug.text('Press E to restart, and T to toggle joint rigidity.', 32, 32);
+    if (!jointsPower) {
+        game.debug.text('Joints are not rigid.', 300, 64);
+    }
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
-        game.debug.text('Applying balancing force.', 32, 96);
+        game.debug.text('Applying balancing force.', 32, 64);
     }
 }
 
 function applyAngularForce(spriteA, spriteB, force) {
+    // Check that the force is non-zero
     if (force == 0) {
         return;
     } 
-    // If the user has pressed the key then make the connected joint no longer try to stay stuck...
-    spriteB.connectedJoint.disableMotor();
-    
     // and apply the angular force
     spriteA.body.applyForce([0,-force],spriteA.body.x,spriteA.body.y);
     spriteB.body.applyForce([0, force],spriteB.body.x,spriteB.body.y);
 }
 
-function enableMotorOfLimb(spriteA) {
-    spriteA.connectedJoint.enableMotor();
-}
 function setAll(a, v) {
     var i, n = a.length;
     for (i = 0; i < n; ++i) {
         a[i] = v;
     }
 }
-var musclePower = 20; //175 with motor, 15 without
+
+var gravity = 600;
+var muscleMotorPower = 3;
+var musclePower = 18; //175 with motor, 15 without
 var stabalisingPower = 10;
 var stabalisingAngle = 40;
 var playerFriction = 1000;
 var hipPower = 1;
+var jointsPower = true;
+
 function update() {
-
-
-    // Restart the runner
-    if (resetRunnerKey.isDown) {
-        resetRunner();
-    }
 
     // Help the runner stay upright
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
         torso.body.rotation *= 1 - 0.01 ; 0.001
     }
-
-    // torso.body.applyForce([0,-torso.body.rotation*stabalisingPower],0,0);
-    // applyAngularForce(torso,upperLegLeft, musclePower*hipPower);
-    // applyAngularForce(torso,upperLegRight, musclePower*hipPower);
-
+    
+    // Interesting half way between power and not
+    // jointsPower = !jointsPower;     
 
     // Power the muscles
     setAll(jointPowersThisFrame,0); // Hip knee ankle hip knee ankle
+    jointPowersThisFrame[0] = (SKey.isDown || QKey.isDown) ?  1 : jointPowersThisFrame[0];
+    jointPowersThisFrame[0] = (DKey.isDown || WKey.isDown) ? -1 : jointPowersThisFrame[0];
+    jointPowersThisFrame[1] = (AKey.isDown || PKey.isDown) ?  1 : jointPowersThisFrame[1];
+    jointPowersThisFrame[1] = (FKey.isDown || OKey.isDown) ? -1 : jointPowersThisFrame[1];
+    jointPowersThisFrame[3] = (JKey.isDown || WKey.isDown) ?  1 : jointPowersThisFrame[3];
+    jointPowersThisFrame[3] = (KKey.isDown || QKey.isDown) ? -1 : jointPowersThisFrame[3];
+    jointPowersThisFrame[4] = (HKey.isDown || OKey.isDown) ?  1 : jointPowersThisFrame[4];
+    jointPowersThisFrame[4] = (LKey.isDown || PKey.isDown) ? -1 : jointPowersThisFrame[4];
 
-    jointPowersThisFrame[0] = (SKey.isDown || OKey.isDown) ?  1 : jointPowersThisFrame[0];
-    jointPowersThisFrame[0] = (DKey.isDown || PKey.isDown) ? -1 : jointPowersThisFrame[0];
-    jointPowersThisFrame[1] = (AKey.isDown || QKey.isDown) ?  1 : jointPowersThisFrame[1];
-    jointPowersThisFrame[1] = (FKey.isDown || WKey.isDown) ? -1 : jointPowersThisFrame[1];
-    jointPowersThisFrame[3] = (JKey.isDown || PKey.isDown) ?  1 : jointPowersThisFrame[3];
-    jointPowersThisFrame[3] = (KKey.isDown || OKey.isDown) ? -1 : jointPowersThisFrame[3];
-    jointPowersThisFrame[4] = (HKey.isDown || WKey.isDown) ?  1 : jointPowersThisFrame[4];
-    jointPowersThisFrame[4] = (LKey.isDown || QKey.isDown) ? -1 : jointPowersThisFrame[4];
-
-    applyAngularForce(torso,upperLegLeft, jointPowersThisFrame[0]*musclePower*hipPower);
-    applyAngularForce(upperLegLeft,lowerLegLeft, jointPowersThisFrame[1]*musclePower);
-    applyAngularForce(torso,upperLegRight, jointPowersThisFrame[3]*musclePower*hipPower);
-    applyAngularForce(upperLegRight,lowerLegRight, jointPowersThisFrame[4]*musclePower);
+    // applyAngularForce(torso,upperLegLeft, jointPowersThisFrame[0]*musclePower*hipPower);
+    // applyAngularForce(upperLegLeft,lowerLegLeft, jointPowersThisFrame[1]*musclePower);
+    // applyAngularForce(torso,upperLegRight, jointPowersThisFrame[3]*musclePower*hipPower);
+    // applyAngularForce(upperLegRight,lowerLegRight, jointPowersThisFrame[4]*musclePower);
 
     for (i = 0; i < joints.length; i++) {
-        if ((i!=2)&&(i!=5)&&(jointPowersThisFrame[i] == 0)) {
-            // When none of the correct keys are pressed stiffen the joints with the motor.
+        if ((i!=2)&&(i!=5)&&jointsPower) {
             joints[i].enableMotor();
+            joints[i].setMotorSpeed(muscleMotorPower*jointPowersThisFrame[i]);
+        } else {
+            // If power isn't allowed to the joints, just let them flop.
+            joints[i].disableMotor();
         }
     }
-
 }
 
 
