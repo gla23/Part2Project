@@ -1,5 +1,8 @@
 
-var game = new Phaser.Game(960, 540, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render});
+var gameHeight = 540;
+var gameWidth  = 1610;
+
+var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render});
 
 function preload() {
 
@@ -8,6 +11,7 @@ function preload() {
     game.load.image('shoe', 'assets/nikey.png');
     game.load.image('background', 'assets/sky.png ');
 }
+
 
 var torso, upperLegLeft, upperLegRight;
 var lowerLegLeft, lowerLegRight;
@@ -27,59 +31,59 @@ var legSeperator = 11*bodyScale;
 
 var torsoMass = 3;
 
+var floorCollisionGroup;
+var athleteStandingCollisionGroup;
+var athleteFallenCollisionGroup;
+
 function create() {
 
     // Set-up game
     back = game.add.image(0, 0, 'background'); 
-    back.width = 960;
-    back.height = 540;
+    back.width = gameWidth;
+    back.height = gameHeight;
 
     // Set-up input keys
     JKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
     KKey = game.input.keyboard.addKey(Phaser.Keyboard.K);
     HKey = game.input.keyboard.addKey(Phaser.Keyboard.H);
     LKey = game.input.keyboard.addKey(Phaser.Keyboard.L);
-
     SKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
     DKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
     AKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
     FKey = game.input.keyboard.addKey(Phaser.Keyboard.F);
-
     QKey = game.input.keyboard.addKey(Phaser.Keyboard.Q);
     WKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
     OKey = game.input.keyboard.addKey(Phaser.Keyboard.O);
     PKey = game.input.keyboard.addKey(Phaser.Keyboard.P);
-
     resetRunnerKey = game.input.keyboard.addKey(Phaser.Keyboard.E);
     resetRunnerKey.onDown.add(resetRunner,this);
-
     toggleJointsKey = game.input.keyboard.addKey(Phaser.Keyboard.T);
     toggleJointsKey.onDown.add(toggleJointPower,this);
     
+    floorHeight = 25    ;
+    floorWidth = 1920;
     // Define variables specifying the model of the body
     torsoX = 500;
     torsoY = 130;
-
     musclePower *= bodyScale;
-    var torsoHeight = 180*bodyScale;
-    var torsoWidth = 70*bodyScale;
+    torsoHeight = 180*bodyScale;
+    torsoWidth = 70*bodyScale;
+    upperLegHeight = 130*bodyScale;
+    upperLegWidth = 25*bodyScale;
+    lowerLegHeight = 120*bodyScale;
+    lowerLegWidth = 18*bodyScale;
+    shoeSize = 100*bodyScale;
+    shoeLegDistance = 10*bodyScale;
+    shoeXOffset = 20*bodyScale;
 
-    var upperLegHeight = 130*bodyScale;
-    var upperLegWidth = 25*bodyScale;
-    var lowerLegHeight = 120*bodyScale;
-    var lowerLegWidth = 18*bodyScale;
-    
     upperLegLeftAngle = Phaser.Math.degToRad(-5);
     lowerLegLeftAngle = Phaser.Math.degToRad(-35) + upperLegLeftAngle;
     shoeLeftAngle     = Phaser.Math.degToRad( 20) + lowerLegLeftAngle;
-
     upperLegRightAngle = Phaser.Math.degToRad( 35);
     lowerLegRightAngle = Phaser.Math.degToRad(-35) + upperLegRightAngle;
     shoeRightAngle     = Phaser.Math.degToRad( 20) + lowerLegRightAngle;
 
-    shoeSize = 100*bodyScale;
-    shoeLegDistance = 10*bodyScale;
-    shoeXOffset = 20*bodyScale;
+
 
 
     // Gets the positions the parts need to be moved to once created
@@ -111,6 +115,7 @@ function create() {
 
 
     // Add the sprites in the position as if all the angles were 0
+    floor         = game.add.sprite(floorWidth/2,gameHeight-floorHeight/2 , 'limb');
     torso         = game.add.sprite(torsoX, torsoY, 'limb');
     upperLegLeft  = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight/2, 'limb');
     lowerLegLeft  = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight+lowerLegHeight/2, 'limb');
@@ -118,7 +123,7 @@ function create() {
     upperLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight/2, 'limb');
     lowerLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight+lowerLegHeight/2, 'limb');
     shoeRight     = game.add.sprite(upperLegRightStartX+shoeXOffset,upperLegRightStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
-    var sprites = [torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight]
+    var sprites = [torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight];
 
     // Change the dimensions of the sprites as specified by the model defined earlier
     torso.width  = torsoWidth;
@@ -135,25 +140,46 @@ function create() {
     lowerLegRight.height = lowerLegHeight;
     shoeRight.width = shoeSize;
     shoeRight.height = shoeSize/20*9;
-
+    floor.height = floorHeight;
+    floor.width = floorWidth;
     
     // Start the P2 Physics engine and add the sprites to it.
     game.physics.startSystem(Phaser.Physics.P2JS);
     game.physics.p2.gravity.y = gravity;
-    game.physics.p2.enable([torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight]);
+    game.physics.p2.enable([torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight, floor]);
     torso.body.mass *= torsoMass;
+    floor.body.static = true;
 
     shoeLeft.body.setRectangle(shoeSize,shoeSize/10,0,shoeSize/40*9-shoeSize/15);
     shoeRight.body.setRectangle(shoeSize,shoeSize/10,0,shoeSize/40*9-shoeSize/15);
 
     // Create collision groups so that the limbs do not collide with each other
-    var athleteCollisionGroup = game.physics.p2.createCollisionGroup();
     game.physics.p2.updateBoundsCollisionGroup();
 
+    floorCollisionGroup = game.physics.p2.createCollisionGroup();
+    athleteStandingCollisionGroup = game.physics.p2.createCollisionGroup();
+    athleteFallenCollisionGroup = game.physics.p2.createCollisionGroup();
+    
+    floor.body.setCollisionGroup(floorCollisionGroup);
+    floor.body.collides(athleteStandingCollisionGroup);
+    floor.body.collides(athleteFallenCollisionGroup);
+    floor.body.friction = playerFriction;
     for (var i = sprites.length - 1; i >= 0; i--) {
         sprites[i].body.friction = playerFriction;
-        sprites[i].body.setCollisionGroup(athleteCollisionGroup);
+
+        if (i>=1 && i<=6) {
+            // Limbs that are allowed to touch the floor
+            sprites[i].body.setCollisionGroup(athleteStandingCollisionGroup);
+        } else {
+            sprites[i].body.setCollisionGroup(athleteFallenCollisionGroup);
+            // Calls the athlete fallen function when a collision happens with the parts of the body that can't touch the floor     //sprites[i].body.onBeginContact.add(athleteFallen,);
+            floor.body.createBodyCallback(sprites[i], athleteFallen,);
+        }
+        sprites[i].body.collides(floorCollisionGroup);         
+
     }
+    // Turns on collisions
+    game.physics.p2.setImpactEvents(true);
 
     
     // Once the body parts have been created move them into the desired start position as calculated earlier.
@@ -177,7 +203,7 @@ function create() {
     joints = new Array(hipLeft,kneeLeft,ankleLeft,hipRight,kneeRight,ankleRight);
     jointPowersThisFrame = new Array();
 
-
+    // Initialise the motors on the joints
     for (i = 0; i < joints.length; i++) {
         joints[i].enableMotor();
         joints[i].setMotorSpeed(0);
@@ -205,12 +231,21 @@ function create() {
     ankleRight.lowerLimit = ankleMinAngle;
 }
 
+
+function athleteFallen(body1,body2) {
+    console.log('failed: ' + body1.id + ' : ' + body2.id);
+    jointsPower = false;
+}
+
 function toggleJointPower() {
     // Toggle joints holding their angle
     jointsPower = !jointsPower;
 }
 
 function resetRunner() {
+    // Make the athlete controllable again
+    jointsPower = true;
+
     // Move the body parts back to the start  position as calculated earlier.
     upperLegLeft.body.x = upperLegLeftX;
     upperLegLeft.body.y = upperLegLeftY;
@@ -269,7 +304,7 @@ var muscleMotorPower = 3;
 var musclePower = 18; //175 with motor, 15 without
 var stabalisingPower = 10;
 var stabalisingAngle = 40;
-var playerFriction = 1000;
+var playerFriction = 10000;
 var hipPower = 1;
 var jointsPower = true;
 
