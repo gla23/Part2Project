@@ -35,8 +35,8 @@ var floorCollisionGroup;
 var athleteStandingCollisionGroup;
 var athleteFallenCollisionGroup;
 
-function create() {
 
+function create() {
     // Set-up game
     back = game.add.image(0, 0, 'background'); 
     back.width = gameWidth;
@@ -99,7 +99,6 @@ function create() {
     lowerLegLeftY = (lowerLegLeftStartY+lowerLegLeftEndY)/2;
     shoeLeftX = lowerLegLeftEndX + shoeXOffset*Math.cos(shoeLeftAngle) + shoeLegDistance*Math.sin(shoeLeftAngle);
     shoeLeftY = lowerLegLeftEndY - shoeXOffset*Math.sin(shoeLeftAngle) + shoeLegDistance*Math.cos(shoeLeftAngle);
-
     upperLegRightStartX = torsoX+legSeperator;
     upperLegRightStartY = torsoY+torsoHeight/2;
     lowerLegRightStartX = upperLegRightStartX + Math.sin(upperLegRightAngle)*upperLegHeight;
@@ -143,29 +142,43 @@ function create() {
     floor.height = floorHeight;
     floor.width = floorWidth;
     
+    // #######################################################
     // Start the P2 Physics engine and add the sprites to it.
     game.physics.startSystem(Phaser.Physics.P2JS);
     game.physics.p2.gravity.y = gravity;
-    game.physics.p2.enable([torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight, floor]);
+    // Add the sprites to the physics engine, true or false at the end is the debug for the sprites
+    game.physics.p2.enable([torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight, floor],false);
+
+    rubberMaterial = game.physics.p2.createMaterial('rubberMaterial');
+    athleteMaterial = game.physics.p2.createMaterial('athleteMaterial');
+    groundPlayerCM = game.physics.p2.createContactMaterial(rubberMaterial, rubberMaterial, { friction: 10.0 });
     torso.body.mass *= torsoMass;
     floor.body.static = true;
 
+    // Reshapes the shoe collision boxes so that they doesn't have collision in the whole rectangle
     shoeLeft.body.setRectangle(shoeSize,shoeSize/10,0,shoeSize/40*9-shoeSize/15);
     shoeRight.body.setRectangle(shoeSize,shoeSize/10,0,shoeSize/40*9-shoeSize/15);
 
-    // Create collision groups so that the limbs do not collide with each other
-    game.physics.p2.updateBoundsCollisionGroup();
+    torso.body.setRectangle(torsoWidth,torsoHeight*1.05,0,0.1*torsoHeight);
 
+    // Create collision groups so that the limbs do not collide with each other
     floorCollisionGroup = game.physics.p2.createCollisionGroup();
     athleteStandingCollisionGroup = game.physics.p2.createCollisionGroup();
     athleteFallenCollisionGroup = game.physics.p2.createCollisionGroup();
-    
+    game.physics.p2.updateBoundsCollisionGroup();
+
     floor.body.setCollisionGroup(floorCollisionGroup);
     floor.body.collides(athleteStandingCollisionGroup);
     floor.body.collides(athleteFallenCollisionGroup);
-    floor.body.friction = playerFriction;
+    floor.body.setMaterial(rubberMaterial);
+
     for (var i = sprites.length - 1; i >= 0; i--) {
-        sprites[i].body.friction = playerFriction;
+        // Give shoes the rubber material
+        if (i==3 || i==6) {
+            sprites[i].body.setMaterial(rubberMaterial);
+        } else {
+            sprites[i].body.setMaterial(athleteMaterial);
+        }
 
         if (i>=1 && i<=6) {
             // Limbs that are allowed to touch the floor
@@ -178,9 +191,8 @@ function create() {
         sprites[i].body.collides(floorCollisionGroup);         
 
     }
-    // Turns on collisions
+    // Turns on collisions set above
     game.physics.p2.setImpactEvents(true);
-
     
     // Once the body parts have been created move them into the desired start position as calculated earlier.
     resetRunner();
@@ -310,7 +322,7 @@ var jointsPower = true;
 
 function update() {
 
-    // Help the runner stay upright
+    // Help the athlete stay upright
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
         torso.body.rotation *= 1 - 0.01 ; 0.001
     }
