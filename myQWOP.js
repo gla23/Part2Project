@@ -1,6 +1,6 @@
 
 var gameHeight = 540;
-var gameWidth  = 1610;
+var gameWidth  = 960;
 
 var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render});
 
@@ -42,6 +42,10 @@ function create() {
     back.width = gameWidth;
     back.height = gameHeight;
 
+    // //  Modify the world and camera bounds
+    game.world.setBounds(0,0,6000, gameHeight);
+
+
     // Set-up input keys
     JKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
     KKey = game.input.keyboard.addKey(Phaser.Keyboard.K);
@@ -60,10 +64,10 @@ function create() {
     toggleJointsKey = game.input.keyboard.addKey(Phaser.Keyboard.T);
     toggleJointsKey.onDown.add(toggleJointPower,this);
     
-    floorHeight = 25    ;
+    floorHeight = 25;
     floorWidth = 1920;
     // Define variables specifying the model of the body
-    torsoX = 500;
+    torsoX = 300;
     torsoY = 130;
     musclePower *= bodyScale;
     torsoHeight = 180*bodyScale;
@@ -142,6 +146,7 @@ function create() {
     floor.height = floorHeight;
     floor.width = floorWidth;
     
+
     // #######################################################
     // Start the P2 Physics engine and add the sprites to it.
     game.physics.startSystem(Phaser.Physics.P2JS);
@@ -155,6 +160,7 @@ function create() {
     torso.body.mass *= torsoMass;
     floor.body.static = true;
 
+
     // Reshapes the shoe collision boxes so that they doesn't have collision in the whole rectangle
     shoeLeft.body.setRectangle(shoeSize,shoeSize/10,0,shoeSize/40*9-shoeSize/15);
     shoeRight.body.setRectangle(shoeSize,shoeSize/10,0,shoeSize/40*9-shoeSize/15);
@@ -165,7 +171,7 @@ function create() {
     floorCollisionGroup = game.physics.p2.createCollisionGroup();
     athleteStandingCollisionGroup = game.physics.p2.createCollisionGroup();
     athleteFallenCollisionGroup = game.physics.p2.createCollisionGroup();
-    game.physics.p2.updateBoundsCollisionGroup();
+    game.physics.p2.updateBoundsCollisionGroup(false,false,false,false);
 
     floor.body.setCollisionGroup(floorCollisionGroup);
     floor.body.collides(athleteStandingCollisionGroup);
@@ -286,6 +292,10 @@ function resetRunner() {
 
 function render() {
     game.debug.text('Press E to restart, and T to toggle joint rigidity.', 32, 32);
+    game.debug.text('Torso x: ' + torso.x, 620, 32);
+
+    game.debug.cameraInfo(game.camera, 64, 96);
+
     if (!jointsPower) {
         game.debug.text('Joints are not rigid.', 300, 64);
     }
@@ -298,7 +308,7 @@ function applyAngularForce(spriteA, spriteB, force) {
     // Check that the force is non-zero
     if (force == 0) {
         return;
-    } 
+    }
     // and apply the angular force
     spriteA.body.applyForce([0,-force],spriteA.body.x,spriteA.body.y);
     spriteB.body.applyForce([0, force],spriteB.body.x,spriteB.body.y);
@@ -313,7 +323,7 @@ function setAll(a, v) {
 
 var gravity = 600;
 var muscleMotorPower = 3;
-var musclePower = 18; //175 with motor, 15 without
+var musclePower = 18;
 var stabalisingPower = 10;
 var stabalisingAngle = 40;
 var playerFriction = 10000;
@@ -327,6 +337,9 @@ function update() {
         torso.body.rotation *= 1 - 0.01 ; 0.001
     }
     
+    // Move the camera to the athlete
+    game.camera.x = Math.max(torso.x - gameWidth/2);
+
     // Interesting half way between power and not
     // jointsPower = !jointsPower;     
 
@@ -340,6 +353,12 @@ function update() {
     jointPowersThisFrame[3] = (KKey.isDown || QKey.isDown) ? -1 : jointPowersThisFrame[3];
     jointPowersThisFrame[4] = (HKey.isDown || OKey.isDown) ?  1 : jointPowersThisFrame[4];
     jointPowersThisFrame[4] = (LKey.isDown || PKey.isDown) ? -1 : jointPowersThisFrame[4];
+
+    // Cheats for camera checking
+    if (JKey.isDown) {
+        torso.body.velocity.x = 400;
+        torso.body.velocity.y = -100;
+    }
 
     // applyAngularForce(torso,upperLegLeft, jointPowersThisFrame[0]*musclePower*hipPower);
     // applyAngularForce(upperLegLeft,lowerLegLeft, jointPowersThisFrame[1]*musclePower);
