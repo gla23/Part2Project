@@ -1,6 +1,6 @@
 
-var gameHeight = 540;
 var gameWidth  = 960;
+var gameHeight = 540;
 
 var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render});
 
@@ -20,7 +20,7 @@ var JKey, KKey, HKey, LKey, SKey, DKey, AKey, FKey;
 
 // Specifies the correct joint constraints
 var  hipMaxAngle = Phaser.Math.degToRad( 105);
-var  hipMinAngle = Phaser.Math.degToRad(-20 );
+var  hipMinAngle = Phaser.Math.degToRad(-30 ); //-20 for easy mode
 var kneeMaxAngle = Phaser.Math.degToRad( 2  );
 var kneeMinAngle = Phaser.Math.degToRad(-115);
 var ankleMaxAngle = Phaser.Math.degToRad( 20);
@@ -329,12 +329,12 @@ var stabalisingAngle = 40;
 var playerFriction = 10000;
 var hipPower = 1;
 var jointsPower = true;
-
+ 
 function update() {
 
     // Help the athlete stay upright
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
-        torso.body.rotation *= 1 - 0.01 ; 0.001
+        torso.body.rotation *= 1 - 0.01; // 0.001
     }
     
     // Move the camera to the athlete
@@ -345,12 +345,12 @@ function update() {
 
     // Power the muscles
     setAll(jointPowersThisFrame,0); // Hip knee ankle hip knee ankle
-    jointPowersThisFrame[0] = (SKey.isDown || QKey.isDown) ?  1 : jointPowersThisFrame[0];
-    jointPowersThisFrame[0] = (DKey.isDown || WKey.isDown) ? -1 : jointPowersThisFrame[0];
+    jointPowersThisFrame[0] = (SKey.isDown || WKey.isDown) ?  1 : jointPowersThisFrame[0];
+    jointPowersThisFrame[0] = (DKey.isDown || QKey.isDown) ? -1 : jointPowersThisFrame[0];
     jointPowersThisFrame[1] = (AKey.isDown || PKey.isDown) ?  1 : jointPowersThisFrame[1];
     jointPowersThisFrame[1] = (FKey.isDown || OKey.isDown) ? -1 : jointPowersThisFrame[1];
-    jointPowersThisFrame[3] = (JKey.isDown || WKey.isDown) ?  1 : jointPowersThisFrame[3];
-    jointPowersThisFrame[3] = (KKey.isDown || QKey.isDown) ? -1 : jointPowersThisFrame[3];
+    jointPowersThisFrame[3] = (JKey.isDown || QKey.isDown) ?  1 : jointPowersThisFrame[3];
+    jointPowersThisFrame[3] = (KKey.isDown || WKey.isDown) ? -1 : jointPowersThisFrame[3];
     jointPowersThisFrame[4] = (HKey.isDown || OKey.isDown) ?  1 : jointPowersThisFrame[4];
     jointPowersThisFrame[4] = (LKey.isDown || PKey.isDown) ? -1 : jointPowersThisFrame[4];
 
