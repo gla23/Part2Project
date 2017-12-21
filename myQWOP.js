@@ -5,7 +5,6 @@ var gameHeight = 540;
 var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render});
 
 function preload() {
-
     game.load.image('body', 'assets/lowerLeg.png');
     game.load.image('limb', 'assets/lowerLeg.png');
     game.load.image('shoe', 'assets/nikey.png');
@@ -15,6 +14,7 @@ function preload() {
 
 var torso, upperLegLeft, upperLegRight;
 var lowerLegLeft, lowerLegRight;
+var shoeLeft, shoeRight;
 var QKey, WKey, OKey, PKey, ResetRunnerKey;
 var JKey, KKey, HKey, LKey, SKey, DKey, AKey, FKey;
 
@@ -38,9 +38,17 @@ var athleteFallenCollisionGroup;
 
 function create() {
     // Set-up game
-    back = game.add.image(0, 0, 'background'); 
+    back = game.add.image(0, 0, 'background');
+    back.fixedToCamera = true;
     back.width = gameWidth;
     back.height = gameHeight;
+
+    var style = { font: "45px Arial", fill: "#eeeeee", align: "center", boundsAlignH: "center" };
+    scoreText = game.add.text(gameWidth/2, 32, "0m", style);
+    scoreText.fixedToCamera = true;
+    scoreText.anchor.set(0.5);
+    startText = game.add.text(40, game.world.centerY, "Run this way\n-->\n", style);
+    
 
     // //  Modify the world and camera bounds
     game.world.setBounds(0,0,6000, gameHeight);
@@ -66,6 +74,7 @@ function create() {
     
     floorHeight = 25;
     floorWidth = 1920;
+    
     // Define variables specifying the model of the body
     torsoX = 300;
     torsoY = 130;
@@ -126,7 +135,7 @@ function create() {
     upperLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight/2, 'limb');
     lowerLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight+lowerLegHeight/2, 'limb');
     shoeRight     = game.add.sprite(upperLegRightStartX+shoeXOffset,upperLegRightStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
-    var sprites = [torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight];
+    sprites = [torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight];
 
     // Change the dimensions of the sprites as specified by the model defined earlier
     torso.width  = torsoWidth;
@@ -251,8 +260,8 @@ function create() {
 
 
 function athleteFallen(body1,body2) {
-    console.log('failed: ' + body1.id + ' : ' + body2.id);
-    jointsPower = false;
+    // console.log('failed: ' + body1.id + ' : ' + body2.id);
+    jointsPower = false; 
 }
 
 function toggleJointPower() {
@@ -288,19 +297,24 @@ function resetRunner() {
     torso.body.rotation = 0;
     torso.body.x = torsoX;
     torso.body.y = torsoY;
+
+    for (i = 0; i < sprites.length; i++) {
+        sprites[i].body.velocity.x = 0;
+        sprites[i].body.velocity.y = 0;
+    }
 }
 
 function render() {
-    game.debug.text('Press E to restart, and T to toggle joint rigidity.', 32, 32);
-    game.debug.text('Torso x: ' + torso.x, 620, 32);
+    // game.debug.text('Press E to restart, and T to toggle joint rigidity.', 32, 32);
+    // game.debug.text('Torso x: ' + torso.x, 620, 32);
 
-    game.debug.cameraInfo(game.camera, 64, 96);
+    // game.debug.cameraInfo(game.camera, 64, 96);
 
     if (!jointsPower) {
-        game.debug.text('Joints are not rigid.', 300, 64);
+        // game.debug.text('Joints are not rigid.', 300, 64);
     }
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
-        game.debug.text('Applying balancing force.', 32, 64);
+        // game.debug.text('Applying balancing force.', 32, 64);
     }
 }
 
@@ -321,6 +335,10 @@ function setAll(a, v) {
     }
 }
 
+function distanceTraveled() {
+    return Math.floor((torso.x - torsoX)/20)/10;
+}
+
 var gravity = 600;
 var muscleMotorPower = 3;
 var musclePower = 18;
@@ -334,11 +352,16 @@ function update() {
 
     // Help the athlete stay upright
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
-        torso.body.rotation *= 1 - 0.01; // 0.001
+        // torso.body.rotation *= 1 - 0.01; // 0.001
     }
+
     
     // Move the camera to the athlete
     game.camera.x = Math.max(torso.x - gameWidth/2);
+
+    // Update Score Text // Math.round(game.time.now)
+    scoreText.text = distanceTraveled().toFixed(1) + " m";
+
 
     // Interesting half way between power and not
     // jointsPower = !jointsPower;     
