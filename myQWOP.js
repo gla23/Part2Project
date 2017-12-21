@@ -7,6 +7,7 @@ var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'phaser-example
 function preload() {
     game.load.image('body', 'assets/lowerLeg.png');
     game.load.image('limb', 'assets/lowerLeg.png');
+    game.load.image('head', 'assets/head.png');
     game.load.image('shoe', 'assets/nikey.png');
     game.load.image('background', 'assets/sky.png ');
 }
@@ -14,6 +15,7 @@ function preload() {
 
 var torso, upperLegLeft, upperLegRight;
 var lowerLegLeft, lowerLegRight;
+var upperArmLeft, lowerArmLeft;
 var shoeLeft, shoeRight;
 var QKey, WKey, OKey, PKey, ResetRunnerKey;
 var JKey, KKey, HKey, LKey, SKey, DKey, AKey, FKey;
@@ -25,10 +27,24 @@ var kneeMaxAngle = Phaser.Math.degToRad( 2  );
 var kneeMinAngle = Phaser.Math.degToRad(-115);
 var ankleMaxAngle = Phaser.Math.degToRad( 20);
 var ankleMinAngle = Phaser.Math.degToRad(-20);
+var shoulderMaxAngle = Phaser.Math.degToRad( 40);
+var shoulderMinAngle = Phaser.Math.degToRad(-40);
+var elbowMaxAngle = Phaser.Math.degToRad( 80);
+var elbowMinAngle = Phaser.Math.degToRad(-70);
+var neckMaxAngle = Phaser.Math.degToRad( 30);
+var neckMinAngle = Phaser.Math.degToRad(-30);
+
+var gravity = 400; // 600 seems realistic
+var muscleMotorPower = 3; //3
+var musclePower = 18; // 18
 
 var bodyScale = 0.8;
+var armScale = 0.9;
+var shoulderOffset = 0.2;
 var legSeperator = 11*bodyScale;
+var armSeperator = 30*bodyScale;
 
+var armMass = 1;
 var torsoMass = 3;
 
 var floorCollisionGroup;
@@ -85,9 +101,16 @@ function create() {
     upperLegWidth = 25*bodyScale;
     lowerLegHeight = 120*bodyScale;
     lowerLegWidth = 18*bodyScale;
+    upperArmHeight = 130*bodyScale*armScale;
+    upperArmWidth = 25*bodyScale*armScale;
+    lowerArmHeight = 120*bodyScale*armScale;
+    lowerArmWidth = 18*bodyScale*armScale;
     shoeSize = 100*bodyScale;
     shoeLegDistance = 10*bodyScale;
     shoeXOffset = 20*bodyScale;
+    headWidth = 62*bodyScale;
+    headHeight = 81*bodyScale;
+    headOffset = 38*bodyScale; //38
 
     upperLegLeftAngle = Phaser.Math.degToRad(-5);
     lowerLegLeftAngle = Phaser.Math.degToRad(-35) + upperLegLeftAngle;
@@ -95,7 +118,10 @@ function create() {
     upperLegRightAngle = Phaser.Math.degToRad( 35);
     lowerLegRightAngle = Phaser.Math.degToRad(-35) + upperLegRightAngle;
     shoeRightAngle     = Phaser.Math.degToRad( 20) + lowerLegRightAngle;
-
+    upperArmLeftAngle = Phaser.Math.degToRad(-5);
+    lowerArmLeftAngle = Phaser.Math.degToRad( 60) + upperArmLeftAngle;
+    upperArmRightAngle = Phaser.Math.degToRad(35);
+    lowerArmRightAngle = Phaser.Math.degToRad(60) + upperArmRightAngle;
 
 
 
@@ -125,17 +151,45 @@ function create() {
     shoeRightX = lowerLegRightEndX + shoeXOffset*Math.cos(shoeRightAngle) + shoeLegDistance*Math.sin(shoeRightAngle);
     shoeRightY = lowerLegRightEndY - shoeXOffset*Math.sin(shoeRightAngle) + shoeLegDistance*Math.cos(shoeRightAngle);
 
+    upperArmLeftStartX = torsoX-armSeperator;
+    upperArmLeftStartY = torsoY+(shoulderOffset-0.5)*torsoHeight;
+    lowerArmLeftStartX = upperArmLeftStartX + Math.sin(upperArmLeftAngle)*upperArmHeight;
+    lowerArmLeftStartY = upperArmLeftStartY + Math.cos(upperArmLeftAngle)*upperArmHeight;
+    lowerArmLeftEndX = lowerArmLeftStartX + Math.sin(lowerArmLeftAngle)*lowerArmHeight;
+    lowerArmLeftEndY = lowerArmLeftStartY + Math.cos(lowerArmLeftAngle)*lowerArmHeight;
+    upperArmLeftX = (upperArmLeftStartX+lowerArmLeftStartX)/2;
+    upperArmLeftY = (upperArmLeftStartY+lowerArmLeftStartY)/2;
+    lowerArmLeftX = (lowerArmLeftStartX+lowerArmLeftEndX)/2;
+    lowerArmLeftY = (lowerArmLeftStartY+lowerArmLeftEndY)/2;
+    upperArmRightStartX = torsoX+armSeperator;
+    upperArmRightStartY = torsoY+(shoulderOffset-0.5)*torsoHeight;
+    lowerArmRightStartX = upperArmRightStartX + Math.sin(upperArmRightAngle)*upperArmHeight;
+    lowerArmRightStartY = upperArmRightStartY + Math.cos(upperArmRightAngle)*upperArmHeight;
+    lowerArmRightEndX = lowerArmRightStartX + Math.sin(lowerArmRightAngle)*lowerArmHeight;
+    lowerArmRightEndY = lowerArmRightStartY + Math.cos(lowerArmRightAngle)*lowerArmHeight;
+    upperArmRightX = (upperArmRightStartX+lowerArmRightStartX)/2;
+    upperArmRightY = (upperArmRightStartY+lowerArmRightStartY)/2;
+    lowerArmRightX = (lowerArmRightStartX+lowerArmRightEndX)/2;
+    lowerArmRightY = (lowerArmRightStartY+lowerArmRightEndY)/2;
+    headX = torsoX;
+    headY = torsoY - torsoHeight/2 - headOffset;
 
     // Add the sprites in the position as if all the angles were 0
     floor         = game.add.sprite(floorWidth/2,gameHeight-floorHeight/2 , 'limb');
     torso         = game.add.sprite(torsoX, torsoY, 'limb');
+    head          = game.add.sprite(headX , headY , 'head');
     upperLegLeft  = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight/2, 'limb');
     lowerLegLeft  = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight+lowerLegHeight/2, 'limb');
     shoeLeft      = game.add.sprite(upperLegLeftStartX+shoeXOffset,upperLegLeftStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
     upperLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight/2, 'limb');
     lowerLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight+lowerLegHeight/2, 'limb');
     shoeRight     = game.add.sprite(upperLegRightStartX+shoeXOffset,upperLegRightStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
-    sprites = [torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight];
+    upperArmLeft  = game.add.sprite(upperArmLeftStartX,upperArmLeftStartY+upperArmHeight/2, 'limb');
+    lowerArmLeft  = game.add.sprite(upperArmLeftStartX,upperArmLeftStartY+upperArmHeight+lowerArmHeight/2, 'limb');
+    upperArmRight = game.add.sprite(upperArmRightStartX,upperArmRightStartY+upperArmHeight/2, 'limb');
+    lowerArmRight = game.add.sprite(upperArmRightStartX,upperArmRightStartY+upperArmHeight+lowerArmHeight/2, 'limb');
+
+    sprites = [torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight, upperArmLeft, lowerArmLeft, upperArmRight, lowerArmRight, head];
 
     // Change the dimensions of the sprites as specified by the model defined earlier
     torso.width  = torsoWidth;
@@ -152,6 +206,16 @@ function create() {
     lowerLegRight.height = lowerLegHeight;
     shoeRight.width = shoeSize;
     shoeRight.height = shoeSize/20*9;
+    upperArmLeft.width  = upperArmWidth;
+    upperArmLeft.height = upperArmHeight;
+    lowerArmLeft.width  = lowerArmWidth;
+    lowerArmLeft.height = lowerArmHeight;
+    upperArmRight.width  = upperArmWidth;
+    upperArmRight.height = upperArmHeight;
+    lowerArmRight.width  = lowerArmWidth;
+    lowerArmRight.height = lowerArmHeight;
+    head.width  = headWidth;
+    head.height = headHeight;
     floor.height = floorHeight;
     floor.width = floorWidth;
     
@@ -161,11 +225,16 @@ function create() {
     game.physics.startSystem(Phaser.Physics.P2JS);
     game.physics.p2.gravity.y = gravity;
     // Add the sprites to the physics engine, true or false at the end is the debug for the sprites
-    game.physics.p2.enable([torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight, floor],false);
+    game.physics.p2.enable([torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight, upperArmLeft, lowerArmLeft, upperArmRight, lowerArmRight, head, floor],false);
 
     rubberMaterial = game.physics.p2.createMaterial('rubberMaterial');
     athleteMaterial = game.physics.p2.createMaterial('athleteMaterial');
     groundPlayerCM = game.physics.p2.createContactMaterial(rubberMaterial, rubberMaterial, { friction: 10.0 });
+    upperArmLeft.body.mass *= armMass;
+    upperArmRight.body.mass *= armMass;
+    lowerArmLeft.body.mass *= armMass;
+    lowerArmRight.body.mass *= armMass;
+
     torso.body.mass *= torsoMass;
     floor.body.static = true;
 
@@ -195,7 +264,7 @@ function create() {
             sprites[i].body.setMaterial(athleteMaterial);
         }
 
-        if (i>=1 && i<=6) {
+        if ((i>=1 && i<=6)||(i==8||i==10)) {
             // Limbs that are allowed to touch the floor
             sprites[i].body.setCollisionGroup(athleteStandingCollisionGroup);
         } else {
@@ -227,7 +296,14 @@ function create() {
     lowerLegRight.connectedJoint = kneeRight;
     shoeRight.connectedJoint = ankleRight;
     
-    joints = new Array(hipLeft,kneeLeft,ankleLeft,hipRight,kneeRight,ankleRight);
+    shoulderLeft  = game.physics.p2.createRevoluteConstraint(upperArmLeft , [0,-upperArmHeight/2],torso,[-armSeperator,(shoulderOffset-0.5)*torsoHeight],maxForce);
+    elbowLeft = game.physics.p2.createRevoluteConstraint(lowerArmLeft, [0,-lowerArmHeight/2],upperArmLeft,[0,upperArmHeight/2],maxForce);
+    shoulderRight = game.physics.p2.createRevoluteConstraint(upperArmRight, [0,-upperArmHeight/2],torso,[ armSeperator,(shoulderOffset-0.5)*torsoHeight],maxForce);
+    elbowRight = game.physics.p2.createRevoluteConstraint(lowerArmRight, [0,-lowerArmHeight/2],upperArmRight,[0,upperArmHeight/2],maxForce);
+
+    neck = game.physics.p2.createRevoluteConstraint(head , [0,headHeight/2],torso,[0,-torsoHeight/2-headOffset+headHeight/2],maxForce);
+
+    joints = new Array(hipLeft,kneeLeft,ankleLeft,hipRight,kneeRight,ankleRight,shoulderLeft,elbowLeft,shoulderRight,elbowRight,neck);
     jointPowersThisFrame = new Array();
 
     // Initialise the motors on the joints
@@ -249,13 +325,21 @@ function create() {
     kneeLeft.lowerLimit = kneeMinAngle;
     ankleLeft.upperLimit = ankleMaxAngle;
     ankleLeft.lowerLimit = ankleMinAngle;
-    
     hipRight.upperLimit = hipMaxAngle;
     hipRight.lowerLimit = hipMinAngle;
     kneeRight.upperLimit = kneeMaxAngle;
     kneeRight.lowerLimit = kneeMinAngle;
     ankleRight.upperLimit = ankleMaxAngle;
     ankleRight.lowerLimit = ankleMinAngle;
+
+    shoulderLeft.upperLimit = shoulderMaxAngle;
+    shoulderLeft.lowerLimit = shoulderMinAngle;
+    elbowLeft.upperLimit = elbowMaxAngle;
+    elbowLeft.lowerLimit = elbowMinAngle;
+    shoulderRight.upperLimit = shoulderMaxAngle;
+    shoulderRight.lowerLimit = shoulderMinAngle;
+    elbowRight.upperLimit = elbowMaxAngle;
+    elbowRight.lowerLimit = elbowMinAngle;
 }
 
 
@@ -283,7 +367,6 @@ function resetRunner() {
     upperLegLeft.body.rotation = -upperLegLeftAngle;
     lowerLegLeft.body.rotation = -lowerLegLeftAngle;
     shoeLeft.body.rotation = -shoeLeftAngle;
-
     upperLegRight.body.x = upperLegRightX;
     upperLegRight.body.y = upperLegRightY;
     lowerLegRight.body.x = lowerLegRightX;
@@ -294,13 +377,30 @@ function resetRunner() {
     lowerLegRight.body.rotation = -lowerLegRightAngle;
     shoeRight.body.rotation = -shoeRightAngle;
 
+    upperArmLeft.body.x = upperArmLeftX;
+    upperArmLeft.body.y = upperArmLeftY;
+    lowerArmLeft.body.x = lowerArmLeftX;
+    lowerArmLeft.body.y = lowerArmLeftY;
+    upperArmLeft.body.rotation = -upperArmLeftAngle;
+    lowerArmLeft.body.rotation = -lowerArmLeftAngle;
+    upperArmRight.body.x = upperArmRightX;
+    upperArmRight.body.y = upperArmRightY;
+    lowerArmRight.body.x = lowerArmRightX;
+    lowerArmRight.body.y = lowerArmRightY;
+    upperArmRight.body.rotation = -upperArmRightAngle;
+    lowerArmRight.body.rotation = -lowerArmRightAngle;
+
     torso.body.rotation = 0;
     torso.body.x = torsoX;
     torso.body.y = torsoY;
+    head.body.rotation = 0;
+    head.body.x = headX;
+    head.body.y = headY;
 
     for (i = 0; i < sprites.length; i++) {
         sprites[i].body.velocity.x = 0;
         sprites[i].body.velocity.y = 0;
+        sprites[i].body.angularVelocity = 0;
     }
 }
 
@@ -339,9 +439,6 @@ function distanceTraveled() {
     return Math.floor((torso.x - torsoX)/20)/10;
 }
 
-var gravity = 600;
-var muscleMotorPower = 3;
-var musclePower = 18;
 var stabalisingPower = 10;
 var stabalisingAngle = 40;
 var playerFriction = 10000;
@@ -377,6 +474,15 @@ function update() {
     jointPowersThisFrame[4] = (HKey.isDown || OKey.isDown) ?  1 : jointPowersThisFrame[4];
     jointPowersThisFrame[4] = (LKey.isDown || PKey.isDown) ? -1 : jointPowersThisFrame[4];
 
+    jointPowersThisFrame[6] = (SKey.isDown || WKey.isDown) ? -1 : jointPowersThisFrame[6];
+    jointPowersThisFrame[6] = (DKey.isDown || QKey.isDown) ?  1 : jointPowersThisFrame[6];
+    // jointPowersThisFrame[7] = (AKey.isDown || PKey.isDown) ? -1 : jointPowersThisFrame[7];
+    // jointPowersThisFrame[7] = (FKey.isDown || OKey.isDown) ?  1 : jointPowersThisFrame[7];
+    jointPowersThisFrame[8] = (JKey.isDown || QKey.isDown) ? -1 : jointPowersThisFrame[8];
+    jointPowersThisFrame[8] = (KKey.isDown || WKey.isDown) ?  1 : jointPowersThisFrame[8];
+    // jointPowersThisFrame[9] = (HKey.isDown || OKey.isDown) ? -1 : jointPowersThisFrame[9];
+    // jointPowersThisFrame[9] = (LKey.isDown || PKey.isDown) ?  1 : jointPowersThisFrame[9];
+
     // Cheats for camera checking
     if (JKey.isDown) {
         torso.body.velocity.x = 400;
@@ -389,7 +495,7 @@ function update() {
     // applyAngularForce(upperLegRight,lowerLegRight, jointPowersThisFrame[4]*musclePower);
 
     for (i = 0; i < joints.length; i++) {
-        if ((i!=2)&&(i!=5)&&jointsPower) {
+        if ((i!=2)&&(i!=5)&&(i<10)&&jointsPower){
             joints[i].enableMotor();
             joints[i].setMotorSpeed(muscleMotorPower*jointPowersThisFrame[i]);
         } else {
