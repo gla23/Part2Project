@@ -19,37 +19,66 @@ var upperArmLeft, lowerArmLeft;
 var shoeLeft, shoeRight;
 var QKey, WKey, OKey, PKey, ResetRunnerKey;
 var JKey, KKey, HKey, LKey, SKey, DKey, AKey, FKey;
+var floorCollisionGroup, athleteStandingCollisionGroup, athleteFallenCollisionGroup;
 
-// Specifies the correct joint constraints
-var  hipMaxAngle = Phaser.Math.degToRad( 105);
-var  hipMinAngle = Phaser.Math.degToRad(-30 ); //-20 for easy mode
+// Easy mode joint restrictions
+// var  hipMaxAngle = Phaser.Math.degToRad( 105);
+// var  hipMinAngle = Phaser.Math.degToRad(-20 );
+// var kneeMaxAngle = Phaser.Math.degToRad( 2  );
+// var kneeMinAngle = Phaser.Math.degToRad(-115);
+// var ankleMaxAngle = Phaser.Math.degToRad( 20);
+// var ankleMinAngle = Phaser.Math.degToRad(-20);
+// var shoulderMaxAngle = Phaser.Math.degToRad( 40);
+// var shoulderMinAngle = Phaser.Math.degToRad(-40);
+// var elbowMaxAngle = Phaser.Math.degToRad( 80);
+// var elbowMinAngle = Phaser.Math.degToRad(-70);
+// var neckMaxAngle = Phaser.Math.degToRad( 30);
+// var neckMinAngle = Phaser.Math.degToRad(-30);
+
+//################################################
+// Variables to fiddle with
+// Joint constraints angles
+var  hipMaxAngle = Phaser.Math.degToRad( 90);
+var  hipMinAngle = Phaser.Math.degToRad(-50 );; //-20 for easy mode
 var kneeMaxAngle = Phaser.Math.degToRad( 2  );
 var kneeMinAngle = Phaser.Math.degToRad(-115);
-var ankleMaxAngle = Phaser.Math.degToRad( 20);
-var ankleMinAngle = Phaser.Math.degToRad(-20);
+var ankleMaxAngle = Phaser.Math.degToRad( 10);
+var ankleMinAngle = Phaser.Math.degToRad(-10);
 var shoulderMaxAngle = Phaser.Math.degToRad( 40);
 var shoulderMinAngle = Phaser.Math.degToRad(-40);
 var elbowMaxAngle = Phaser.Math.degToRad( 80);
 var elbowMinAngle = Phaser.Math.degToRad(-70);
 var neckMaxAngle = Phaser.Math.degToRad( 30);
 var neckMinAngle = Phaser.Math.degToRad(-30);
-
-var gravity = 400; // 600 seems realistic
-var muscleMotorPower = 3; //3
-var musclePower = 18; // 18
-
+// Start angles for limbs
+upperLegLeftAngle = Phaser.Math.degToRad(-5);
+lowerLegLeftAngle = Phaser.Math.degToRad(-37.4) + upperLegLeftAngle; //-37.4 sinks into a stance rather than falling over
+shoeLeftAngle     = Phaser.Math.degToRad( 5) + lowerLegLeftAngle;
+upperLegRightAngle = Phaser.Math.degToRad( 25);
+lowerLegRightAngle = Phaser.Math.degToRad(-25) + upperLegRightAngle;
+shoeRightAngle     = Phaser.Math.degToRad(-5) + lowerLegRightAngle;
+upperArmLeftAngle = Phaser.Math.degToRad(-25);
+lowerArmLeftAngle = Phaser.Math.degToRad( 60) + upperArmLeftAngle;
+upperArmRightAngle = Phaser.Math.degToRad(35);
+lowerArmRightAngle = Phaser.Math.degToRad(60) + upperArmRightAngle;
+// Physics values
+var gravity = 500; // 600 seems realistic 400 seems good
+var muscleMotorPower = 3.3; //3 with mass all 1
+var playerFriction = 3.7; // 3.5 good for 3,1,2.5,2 masses
+// Body dimensions
 var bodyScale = 0.8;
-var armScale = 0.9;
+var armScale = 0.8; //0.9
 var shoulderOffset = 0.2;
 var legSeperator = 11*bodyScale;
 var armSeperator = 30*bodyScale;
-
+// Body masses
+var headMass = 7;
 var armMass = 1;
 var torsoMass = 3;
+var upperLegMass = 1;
+var lowerLegMass = 2.5; // 1.8
+var shoeMass = 2;
 
-var floorCollisionGroup;
-var athleteStandingCollisionGroup;
-var athleteFallenCollisionGroup;
 
 
 function create() {
@@ -93,8 +122,7 @@ function create() {
     
     // Define variables specifying the model of the body
     torsoX = 300;
-    torsoY = 130;
-    musclePower *= bodyScale;
+    torsoY = 210;
     torsoHeight = 180*bodyScale;
     torsoWidth = 70*bodyScale;
     upperLegHeight = 130*bodyScale;
@@ -112,16 +140,6 @@ function create() {
     headHeight = 81*bodyScale;
     headOffset = 38*bodyScale; //38
 
-    upperLegLeftAngle = Phaser.Math.degToRad(-5);
-    lowerLegLeftAngle = Phaser.Math.degToRad(-35) + upperLegLeftAngle;
-    shoeLeftAngle     = Phaser.Math.degToRad( 20) + lowerLegLeftAngle;
-    upperLegRightAngle = Phaser.Math.degToRad( 35);
-    lowerLegRightAngle = Phaser.Math.degToRad(-35) + upperLegRightAngle;
-    shoeRightAngle     = Phaser.Math.degToRad( 20) + lowerLegRightAngle;
-    upperArmLeftAngle = Phaser.Math.degToRad(-5);
-    lowerArmLeftAngle = Phaser.Math.degToRad( 60) + upperArmLeftAngle;
-    upperArmRightAngle = Phaser.Math.degToRad(35);
-    lowerArmRightAngle = Phaser.Math.degToRad(60) + upperArmRightAngle;
 
 
 
@@ -229,11 +247,18 @@ function create() {
 
     rubberMaterial = game.physics.p2.createMaterial('rubberMaterial');
     athleteMaterial = game.physics.p2.createMaterial('athleteMaterial');
-    groundPlayerCM = game.physics.p2.createContactMaterial(rubberMaterial, rubberMaterial, { friction: 10.0 });
+    groundPlayerCM = game.physics.p2.createContactMaterial(rubberMaterial, rubberMaterial, { friction: playerFriction }); // was 10.0
+    upperLegLeft.body.mass *= upperLegMass;
+    upperLegRight.body.mass *= upperLegMass;
+    lowerLegLeft.body.mass *= lowerLegMass;
+    lowerLegRight.body.mass *= lowerLegMass;
+    shoeLeft.body.mass *= shoeMass;
+    shoeRight.body.mass *= shoeMass;
     upperArmLeft.body.mass *= armMass;
     upperArmRight.body.mass *= armMass;
     lowerArmLeft.body.mass *= armMass;
     lowerArmRight.body.mass *= armMass;
+    head.body.mass *= headMass;
 
     torso.body.mass *= torsoMass;
     floor.body.static = true;
@@ -264,7 +289,7 @@ function create() {
             sprites[i].body.setMaterial(athleteMaterial);
         }
 
-        if ((i>=1 && i<=6)||(i==8||i==10)) {
+        if ((i>=1 && i<=6)) { //||(i==8||i==10)
             // Limbs that are allowed to touch the floor
             sprites[i].body.setCollisionGroup(athleteStandingCollisionGroup);
         } else {
@@ -279,7 +304,7 @@ function create() {
     game.physics.p2.setImpactEvents(true);
     
     // Once the body parts have been created move them into the desired start position as calculated earlier.
-    resetRunner();
+    // resetRunner();
 
     // Create joints between limbs
     maxForce = 10000;
@@ -305,6 +330,9 @@ function create() {
 
     joints = new Array(hipLeft,kneeLeft,ankleLeft,hipRight,kneeRight,ankleRight,shoulderLeft,elbowLeft,shoulderRight,elbowRight,neck);
     jointPowersThisFrame = new Array();
+
+    // Once the body parts have been created move them into the desired start position as calculated earlier.
+    resetRunner();
 
     // Initialise the motors on the joints
     for (i = 0; i < joints.length; i++) {
@@ -345,7 +373,11 @@ function create() {
 
 function athleteFallen(body1,body2) {
     // console.log('failed: ' + body1.id + ' : ' + body2.id);
-    jointsPower = false; 
+    jointsPower = false;
+    for (i = 6; i < joints.length-1; i++) {
+        joints[i].lowerLimitEnabled = false;
+        joints[i].upperLimitEnabled = false;
+    }
 }
 
 function toggleJointPower() {
@@ -402,6 +434,11 @@ function resetRunner() {
         sprites[i].body.velocity.y = 0;
         sprites[i].body.angularVelocity = 0;
     }
+    // Make joints have constraints again
+    for (i = 0; i < joints.length; i++) {
+        joints[i].lowerLimitEnabled = true;
+        joints[i].upperLimitEnabled = true;
+    }
 }
 
 function render() {
@@ -441,7 +478,6 @@ function distanceTraveled() {
 
 var stabalisingPower = 10;
 var stabalisingAngle = 40;
-var playerFriction = 10000;
 var hipPower = 1;
 var jointsPower = true;
  
@@ -488,11 +524,6 @@ function update() {
         torso.body.velocity.x = 400;
         torso.body.velocity.y = -100;
     }
-
-    // applyAngularForce(torso,upperLegLeft, jointPowersThisFrame[0]*musclePower*hipPower);
-    // applyAngularForce(upperLegLeft,lowerLegLeft, jointPowersThisFrame[1]*musclePower);
-    // applyAngularForce(torso,upperLegRight, jointPowersThisFrame[3]*musclePower*hipPower);
-    // applyAngularForce(upperLegRight,lowerLegRight, jointPowersThisFrame[4]*musclePower);
 
     for (i = 0; i < joints.length; i++) {
         if ((i!=2)&&(i!=5)&&(i<10)&&jointsPower){
