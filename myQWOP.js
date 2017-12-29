@@ -63,7 +63,7 @@ upperArmRightAngle = Phaser.Math.degToRad(35);
 lowerArmRightAngle = Phaser.Math.degToRad(60) + upperArmRightAngle;
 // Physics values
 var gravity = 500; // 600 seems realistic 400 seems good
-var muscleMotorPower = 3.3; //3 with mass all 1
+var muscleMotorPower = 3.5; //3 with mass all 1
 var playerFriction = 3.7; // 3.5 good for 3,1,2.5,2 masses
 // Body dimensions
 var bodyScale = 0.8;
@@ -72,12 +72,13 @@ var shoulderOffset = 0.2;
 var legSeperator = 11*bodyScale;
 var armSeperator = 30*bodyScale;
 // Body masses
-var headMass = 7;
-var armMass = 1;
-var torsoMass = 3;
-var upperLegMass = 1;
-var lowerLegMass = 2.5; // 1.8
-var shoeMass = 2;
+var massScale = 0.000015;
+var headMass = 2*massScale;
+var armMass = 1*massScale;
+var torsoMass = 3*massScale;
+var upperLegMass = 1*massScale;
+var lowerLegMass = 2.5*massScale; // 1.8
+var shoeMass = 2*massScale;
 
 
 
@@ -259,8 +260,8 @@ function create() {
     lowerArmLeft.body.mass *= armMass;
     lowerArmRight.body.mass *= armMass;
     head.body.mass *= headMass;
-
     torso.body.mass *= torsoMass;
+
     floor.body.static = true;
 
 
