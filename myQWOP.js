@@ -49,7 +49,7 @@ var floorCollisionGroup, athleteStandingCollisionGroup, athleteFallenCollisionGr
 // Variables to fiddle with
 // Joint constraints angles
 var  hipMaxAngle = Phaser.Math.degToRad( 90);
-var  hipMinAngle = Phaser.Math.degToRad(-50 );; //-20 for easy mode
+var  hipMinAngle = Phaser.Math.degToRad(-33 );; //-20 for easy mode
 var kneeMaxAngle = Phaser.Math.degToRad( 2  );
 var kneeMinAngle = Phaser.Math.degToRad(-115);
 var ankleMaxAngle = Phaser.Math.degToRad( 20);
@@ -425,6 +425,7 @@ function resetRunner() {
 
     // Reset sneaker speed
     groundPlayerCM.surfaceVelocity = 0;
+    sneakerSpeed = 0;
 
     // Move the body parts back to the start  position as calculated earlier.
     upperLegLeft.body.x = upperLegLeftX;
@@ -525,12 +526,16 @@ var stabalisingAngle = 40;
 var hipPower = 1;
 var jointsPower = true;
  
+sneakerHelpMax = 3.0;
+sneakerHelpMultiplier = 0.7;
+sneakerHelpHeightCutoff = 340;
 function update () {
 
     // Help the athlete stay upright
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
         // torso.body.rotation *= 1 - 0.01; // 0.001
     }
+
 
     // Add extra speed to the floor so it appears to keep speed better
     if (torso.body.y < 300) {
@@ -541,9 +546,9 @@ function update () {
     } else {
         sneakerSpeed *= 0.95;
     }
-    if (torso.body.y < 300) {
-        if (sneakerSpeed<2){
-            groundPlayerCM.surfaceVelocity = Math.min(2,sneakerSpeed*sneakerSpeed*3);
+    if (torso.body.y < sneakerHelpHeightCutoff) {
+        if (sneakerSpeed<sneakerHelpMax){
+            groundPlayerCM.surfaceVelocity = Math.min(sneakerHelpMax,sneakerSpeed*(sneakerSpeed+0.7)*sneakerHelpMultiplier);
         } else {
             groundPlayerCM.surfaceVelocity = sneakerSpeed;
         }
