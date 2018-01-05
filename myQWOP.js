@@ -213,6 +213,7 @@ function create() {
 
     // Add the sprites in the position as if all the angles were 0
     floor         = game.add.sprite(floorWidth/2,gameHeight-floorHeight/2 , 'floor');
+    head          = game.add.sprite(headX , headY , 'head');
     lowerLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight+lowerLegHeight/2, 'lowerLeg');
     upperLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight/2, 'upperLeg');
     shoeRight     = game.add.sprite(upperLegRightStartX+shoeXOffset,upperLegRightStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
@@ -224,7 +225,6 @@ function create() {
     shoeLeft      = game.add.sprite(upperLegLeftStartX+shoeXOffset,upperLegLeftStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
     upperArmLeft  = game.add.sprite(upperArmLeftStartX,upperArmLeftStartY+upperArmHeight/2, 'upperArm');
     lowerArmLeft  = game.add.sprite(upperArmLeftStartX,upperArmLeftStartY+upperArmHeight+lowerArmHeight/2, 'lowerArm');
-    head          = game.add.sprite(headX , headY , 'head');
 
     sprites = [torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight, upperArmLeft, lowerArmLeft, upperArmRight, lowerArmRight, head];
 
@@ -256,7 +256,7 @@ function create() {
     upperArmRight.height = upperArmHeight;
     lowerArmRight.width  = lowerArmWidth*limbWidthMultiplier;
     lowerArmRight.height = lowerArmHeight*limbLengthener; 
-    head.width  = headWidth/0.86;
+    head.width  = headWidth;
     head.height = headHeight;
     floor.height = floorHeight;
     floor.width = floorWidth;
