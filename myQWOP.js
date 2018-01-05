@@ -52,8 +52,8 @@ var  hipMaxAngle = Phaser.Math.degToRad( 90);
 var  hipMinAngle = Phaser.Math.degToRad(-50 );; //-20 for easy mode
 var kneeMaxAngle = Phaser.Math.degToRad( 2  );
 var kneeMinAngle = Phaser.Math.degToRad(-115);
-var ankleMaxAngle = Phaser.Math.degToRad( 10);
-var ankleMinAngle = Phaser.Math.degToRad(-10);
+var ankleMaxAngle = Phaser.Math.degToRad( 20);
+var ankleMinAngle = Phaser.Math.degToRad(-20);
 var shoulderMaxAngle = Phaser.Math.degToRad( 40);
 var shoulderMinAngle = Phaser.Math.degToRad(-40);
 var elbowMaxAngle = Phaser.Math.degToRad( 80);
@@ -72,11 +72,11 @@ lowerArmLeftAngle = Phaser.Math.degToRad( 60) + upperArmLeftAngle;
 upperArmRightAngle = Phaser.Math.degToRad(35);
 lowerArmRightAngle = Phaser.Math.degToRad(60) + upperArmRightAngle;
 
-// Physics values
 var originalGraphics = 1; 
-var gravity = 420; // 600 seems realistic 400 seems good
-// 4,5
-var muscleMotorPower = 4; //4 and 3.5 good for 3,1,2.5,2 masses
+// Physics values
+var gravity = 400; // 600 seems realistic 400 seems good
+var massScale = 1.000015;
+var muscleMotorPower = 3.7; //4 and 3.5 good for 3,1,2.5,2 masses
 var playerFriction = 10; // 3.5/7 good for 3,1,2.5,2 masses
 // Body dimensions
 var bodyScale = 0.8; //0.8
@@ -85,7 +85,6 @@ var shoulderOffset = 0.2 -0.1*originalGraphics;;
 var legSeperator = 11*bodyScale -10*originalGraphics;
 var armSeperator = 30*bodyScale -8*originalGraphics;
 // Body masses
-var massScale = 0.000015;
 var headMass = 2*massScale;
 var armMass = 1*massScale;
 var torsoMass = 3*massScale;
@@ -101,21 +100,32 @@ function create() {
     floorWidth = roomWidth;
     torsoX = 450;
     torsoY = 210;
-    
+    sneakerSpeed = 0
+
     // Set-up game
     back = game.add.image(0,0, 'background');
     back.fixedToCamera = true;
     back.width = gameWidth;
     back.height = gameHeight-floorHeight;
-    startingLine = game.add.sprite(torsoX+20,0, 'startLine');
-    startingLine.height = gameHeight-floorHeight;
+
+
 
     var style = { font: "45px Arial", fill: "#eeeeee", align: "center", boundsAlignH: "center" };
+
+    // Add distance markers
+    for (var i = 0; i < 6; i++) {
+        d = 5*i;
+        x = xOfDistance(d)+20
+        line = game.add.sprite(x,0, 'startLine');
+        line.height = gameHeight-floorHeight;
+        scoreText = game.add.text(x+63, 390, d +"m", style);
+        scoreText.anchor.set(0.5);
+    }
+
+    // Add score Text
     scoreText = game.add.text(gameWidth/2, 32, "0m", style);
     scoreText.fixedToCamera = true;
     scoreText.anchor.set(0.5);
-    //startText = game.add.text(40, game.world.centerY, "Run this way\n-->\n", style);
-
 
     // //  Modify the world and camera bounds
     game.world.setBounds(0,0,roomWidth, gameHeight);
@@ -271,7 +281,9 @@ function create() {
 
     rubberMaterial = game.physics.p2.createMaterial('rubberMaterial');
     athleteMaterial = game.physics.p2.createMaterial('athleteMaterial');
-    groundPlayerCM = game.physics.p2.createContactMaterial(rubberMaterial, rubberMaterial, { friction: playerFriction }); // was 10.0
+    groundPlayerCM = game.physics.p2.createContactMaterial(rubberMaterial, rubberMaterial, { friction: playerFriction}); // was 10.0
+    //groundPlayerCM.frictionRelaxation = ??
+
     upperLegLeft.body.mass *= upperLegMass;
     upperLegRight.body.mass *= upperLegMass;
     lowerLegLeft.body.mass *= lowerLegMass;
@@ -411,6 +423,9 @@ function resetRunner() {
     // Make the athlete controllable again
     jointsPower = true;
 
+    // Reset sneaker speed
+    groundPlayerCM.surfaceVelocity = 0;
+
     // Move the body parts back to the start  position as calculated earlier.
     upperLegLeft.body.x = upperLegLeftX;
     upperLegLeft.body.y = upperLegLeftY;
@@ -465,7 +480,10 @@ function resetRunner() {
 
 function render() {
     // game.debug.text('Press E to restart, and T to toggle joint rigidity.', 32, 32);
-    // game.debug.text('Torso x: ' + torso.x, 620, 32);
+    game.debug.text('Sneaker Speed underlying: ' + sneakerSpeed.toFixed(2),  40, 32);
+    game.debug.text('Torso velocity: ' + (-torso.body.velocity.x).toFixed(2), 620, 32);
+    game.debug.text('Sneaker Speed™: ' + groundPlayerCM.surfaceVelocity.toFixed(2),  40, 64);
+    game.debug.text('Torso Y: ' + torso.body.y.toFixed(2), 620, 64);
 
     // game.debug.cameraInfo(game.camera, 64, 96);
 
@@ -474,7 +492,7 @@ function render() {
     }
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
         // game.debug.text('Applying balancing force.', 32, 64);
-    }
+    } 
 }
 
 function applyAngularForce(spriteA, spriteB, force) {
@@ -495,8 +513,12 @@ function setAll(a, v) {
 }
 
 function distanceTraveled() {
-    return Math.floor((torso.x - torsoX)/20)/10 -0.1;
+    return Math.floor((torso.x - torsoX)/15)/10;
 }
+// inverse distance travelled
+function xOfDistance(d) { 
+    return d*10*15 + torsoX;
+} 
 
 var stabalisingPower = 10;
 var stabalisingAngle = 40;
@@ -510,7 +532,29 @@ function update () {
         // torso.body.rotation *= 1 - 0.01; // 0.001
     }
 
+    // Add extra speed to the floor so it appears to keep speed better
+    if (torso.body.y < 300) {
+        shoeLV = Math.max(0,-shoeLeft.body.velocity.x/3);
+        shoeRV = Math.max(0,-shoeRight.body.velocity.x/3);
+        torsoV = Math.max(0,-torso.body.velocity.x/3);
+        sneakerSpeed =Math.max( Math.max(Math.min(shoeRV,torsoV), Math.min(shoeLV,torsoV)) ,sneakerSpeed*0.98);
+    } else {
+        sneakerSpeed *= 0.95;
+    }
+    if (torso.body.y < 300) {
+        if (sneakerSpeed<2){
+            groundPlayerCM.surfaceVelocity = Math.min(2,sneakerSpeed*sneakerSpeed*3);
+        } else {
+            groundPlayerCM.surfaceVelocity = sneakerSpeed;
+        }
+    } else {
+        groundPlayerCM.surfaceVelocity = 0;
+    }
+
+
+
     
+
     // Move the camera to the athlete
     game.camera.x = Math.max(torso.x - gameWidth/2);
 
