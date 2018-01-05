@@ -1,15 +1,25 @@
 
 var gameWidth  = 960;
 var gameHeight = 540;
+var roomWidth = 4000;
 
 var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render});
 
 function preload() {
-    game.load.image('body', 'assets/lowerLeg.png');
-    game.load.image('limb', 'assets/lowerLeg.png');
+    game.load.image('floor', 'assets/floor.png');
+    game.load.image('body', 'assets/greyLimb.png');
+    game.load.image('limb', 'assets/greyLimb.png');
     game.load.image('head', 'assets/head.png');
     game.load.image('shoe', 'assets/nikey.png');
-    game.load.image('background', 'assets/sky.png ');
+    game.load.image('lowerLeg', 'assets/lowerLeg.png');
+    game.load.image('upperLeg', 'assets/upperLeg.png');
+    game.load.image('lowerArm', 'assets/lowerArm.png');
+    game.load.image('upperArm', 'assets/upperArm.png');
+    game.load.image('torso', 'assets/torsoBlue.png');
+
+    // game.load.image('background', 'assets/sky.png ');
+    game.load.image('background', 'assets/QWOPBackground.png ');
+    game.load.image('startLine', 'assets/QWOPStartLine.png ');
 }
 
 
@@ -61,16 +71,19 @@ upperArmLeftAngle = Phaser.Math.degToRad(-25);
 lowerArmLeftAngle = Phaser.Math.degToRad( 60) + upperArmLeftAngle;
 upperArmRightAngle = Phaser.Math.degToRad(35);
 lowerArmRightAngle = Phaser.Math.degToRad(60) + upperArmRightAngle;
+
 // Physics values
-var gravity = 500; // 600 seems realistic 400 seems good
-var muscleMotorPower = 3.5; //3 with mass all 1
-var playerFriction = 3.7; // 3.5 good for 3,1,2.5,2 masses
+var originalGraphics = 1; 
+var gravity = 420; // 600 seems realistic 400 seems good
+// 4,5
+var muscleMotorPower = 4; //4 and 3.5 good for 3,1,2.5,2 masses
+var playerFriction = 10; // 3.5/7 good for 3,1,2.5,2 masses
 // Body dimensions
-var bodyScale = 0.8;
+var bodyScale = 0.8; //0.8
 var armScale = 0.8; //0.9
-var shoulderOffset = 0.2;
-var legSeperator = 11*bodyScale;
-var armSeperator = 30*bodyScale;
+var shoulderOffset = 0.2 -0.1*originalGraphics;;
+var legSeperator = 11*bodyScale -10*originalGraphics;
+var armSeperator = 30*bodyScale -8*originalGraphics;
 // Body masses
 var massScale = 0.000015;
 var headMass = 2*massScale;
@@ -83,21 +96,29 @@ var shoeMass = 2*massScale;
 
 
 function create() {
+    // Setup Variables
+    floorHeight = 10;
+    floorWidth = roomWidth;
+    torsoX = 450;
+    torsoY = 210;
+    
     // Set-up game
-    back = game.add.image(0, 0, 'background');
+    back = game.add.image(0,0, 'background');
     back.fixedToCamera = true;
     back.width = gameWidth;
-    back.height = gameHeight;
+    back.height = gameHeight-floorHeight;
+    startingLine = game.add.sprite(torsoX+20,0, 'startLine');
+    startingLine.height = gameHeight-floorHeight;
 
     var style = { font: "45px Arial", fill: "#eeeeee", align: "center", boundsAlignH: "center" };
     scoreText = game.add.text(gameWidth/2, 32, "0m", style);
     scoreText.fixedToCamera = true;
     scoreText.anchor.set(0.5);
-    startText = game.add.text(40, game.world.centerY, "Run this way\n-->\n", style);
-    
+    //startText = game.add.text(40, game.world.centerY, "Run this way\n-->\n", style);
+
 
     // //  Modify the world and camera bounds
-    game.world.setBounds(0,0,6000, gameHeight);
+    game.world.setBounds(0,0,roomWidth, gameHeight);
 
 
     // Set-up input keys
@@ -118,12 +139,9 @@ function create() {
     toggleJointsKey = game.input.keyboard.addKey(Phaser.Keyboard.T);
     toggleJointsKey.onDown.add(toggleJointPower,this);
     
-    floorHeight = 25;
-    floorWidth = 1920;
-    
+    legHeightDistance = 0.4; //0.5
+    upperLegMultiplier = 1.4; //1
     // Define variables specifying the model of the body
-    torsoX = 300;
-    torsoY = 210;
     torsoHeight = 180*bodyScale;
     torsoWidth = 70*bodyScale;
     upperLegHeight = 130*bodyScale;
@@ -139,14 +157,14 @@ function create() {
     shoeXOffset = 20*bodyScale;
     headWidth = 62*bodyScale;
     headHeight = 81*bodyScale;
-    headOffset = 38*bodyScale; //38
+    headOffset = 38*bodyScale - 7*originalGraphics; //38
 
 
 
 
     // Gets the positions the parts need to be moved to once created
     upperLegLeftStartX = torsoX-legSeperator;
-    upperLegLeftStartY = torsoY+torsoHeight/2;
+    upperLegLeftStartY = torsoY+torsoHeight*legHeightDistance;
     lowerLegLeftStartX = upperLegLeftStartX + Math.sin(upperLegLeftAngle)*upperLegHeight;
     lowerLegLeftStartY = upperLegLeftStartY + Math.cos(upperLegLeftAngle)*upperLegHeight;
     lowerLegLeftEndX = lowerLegLeftStartX + Math.sin(lowerLegLeftAngle)*lowerLegHeight;
@@ -158,7 +176,7 @@ function create() {
     shoeLeftX = lowerLegLeftEndX + shoeXOffset*Math.cos(shoeLeftAngle) + shoeLegDistance*Math.sin(shoeLeftAngle);
     shoeLeftY = lowerLegLeftEndY - shoeXOffset*Math.sin(shoeLeftAngle) + shoeLegDistance*Math.cos(shoeLeftAngle);
     upperLegRightStartX = torsoX+legSeperator;
-    upperLegRightStartY = torsoY+torsoHeight/2;
+    upperLegRightStartY = torsoY+torsoHeight*legHeightDistance;
     lowerLegRightStartX = upperLegRightStartX + Math.sin(upperLegRightAngle)*upperLegHeight;
     lowerLegRightStartY = upperLegRightStartY + Math.cos(upperLegRightAngle)*upperLegHeight;
     lowerLegRightEndX = lowerLegRightStartX + Math.sin(lowerLegRightAngle)*lowerLegHeight;
@@ -194,46 +212,51 @@ function create() {
     headY = torsoY - torsoHeight/2 - headOffset;
 
     // Add the sprites in the position as if all the angles were 0
-    floor         = game.add.sprite(floorWidth/2,gameHeight-floorHeight/2 , 'limb');
-    torso         = game.add.sprite(torsoX, torsoY, 'limb');
-    head          = game.add.sprite(headX , headY , 'head');
-    upperLegLeft  = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight/2, 'limb');
-    lowerLegLeft  = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight+lowerLegHeight/2, 'limb');
-    shoeLeft      = game.add.sprite(upperLegLeftStartX+shoeXOffset,upperLegLeftStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
-    upperLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight/2, 'limb');
-    lowerLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight+lowerLegHeight/2, 'limb');
+    floor         = game.add.sprite(floorWidth/2,gameHeight-floorHeight/2 , 'floor');
+    lowerLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight+lowerLegHeight/2, 'lowerLeg');
+    upperLegRight = game.add.sprite(upperLegRightStartX,upperLegRightStartY+upperLegHeight/2, 'upperLeg');
     shoeRight     = game.add.sprite(upperLegRightStartX+shoeXOffset,upperLegRightStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
-    upperArmLeft  = game.add.sprite(upperArmLeftStartX,upperArmLeftStartY+upperArmHeight/2, 'limb');
-    lowerArmLeft  = game.add.sprite(upperArmLeftStartX,upperArmLeftStartY+upperArmHeight+lowerArmHeight/2, 'limb');
-    upperArmRight = game.add.sprite(upperArmRightStartX,upperArmRightStartY+upperArmHeight/2, 'limb');
-    lowerArmRight = game.add.sprite(upperArmRightStartX,upperArmRightStartY+upperArmHeight+lowerArmHeight/2, 'limb');
+    upperArmRight = game.add.sprite(upperArmRightStartX,upperArmRightStartY+upperArmHeight/2, 'upperArm');
+    lowerArmRight = game.add.sprite(upperArmRightStartX,upperArmRightStartY+upperArmHeight+lowerArmHeight/2, 'lowerArm');
+    torso         = game.add.sprite(torsoX, torsoY, 'torso');
+    lowerLegLeft  = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight+lowerLegHeight/2, 'lowerLeg');
+    upperLegLeft  = game.add.sprite(upperLegLeftStartX,upperLegLeftStartY+upperLegHeight/2, 'upperLeg');
+    shoeLeft      = game.add.sprite(upperLegLeftStartX+shoeXOffset,upperLegLeftStartY+upperLegHeight+lowerLegHeight+shoeLegDistance, 'shoe');
+    upperArmLeft  = game.add.sprite(upperArmLeftStartX,upperArmLeftStartY+upperArmHeight/2, 'upperArm');
+    lowerArmLeft  = game.add.sprite(upperArmLeftStartX,upperArmLeftStartY+upperArmHeight+lowerArmHeight/2, 'lowerArm');
+    head          = game.add.sprite(headX , headY , 'head');
 
     sprites = [torso, upperLegLeft, lowerLegLeft, shoeLeft, upperLegRight, lowerLegRight, shoeRight, upperArmLeft, lowerArmLeft, upperArmRight, lowerArmRight, head];
 
+    // Resize graphics
+    upperLegSpriteScalar = 1.2;
+    torsoScalar = 1.1;
+    limbWidthMultiplier = 2;
+    limbLengthener = 1.2;
     // Change the dimensions of the sprites as specified by the model defined earlier
-    torso.width  = torsoWidth;
-    torso.height = torsoHeight;
-    upperLegLeft.width  = upperLegWidth;
-    upperLegLeft.height = upperLegHeight;
-    lowerLegLeft.width  = lowerLegWidth;
+    torso.width  = torsoWidth*torsoScalar;
+    torso.height = torsoHeight*torsoScalar;
+    upperLegLeft.width  = upperLegWidth*upperLegSpriteScalar*limbWidthMultiplier;
+    upperLegLeft.height = upperLegHeight*upperLegSpriteScalar;
+    lowerLegLeft.width  = lowerLegWidth*limbWidthMultiplier;
     lowerLegLeft.height = lowerLegHeight;
     shoeLeft.width = shoeSize;
     shoeLeft.height = shoeSize/20*9;
-    upperLegRight.width  = upperLegWidth;
-    upperLegRight.height = upperLegHeight;
-    lowerLegRight.width  = lowerLegWidth;
+    upperLegRight.width  = upperLegWidth*upperLegSpriteScalar*limbWidthMultiplier;
+    upperLegRight.height = upperLegHeight*upperLegSpriteScalar;
+    lowerLegRight.width  = lowerLegWidth*limbWidthMultiplier;
     lowerLegRight.height = lowerLegHeight;
     shoeRight.width = shoeSize;
     shoeRight.height = shoeSize/20*9;
-    upperArmLeft.width  = upperArmWidth;
+    upperArmLeft.width  = upperArmWidth*limbWidthMultiplier;
     upperArmLeft.height = upperArmHeight;
-    lowerArmLeft.width  = lowerArmWidth;
-    lowerArmLeft.height = lowerArmHeight;
-    upperArmRight.width  = upperArmWidth;
+    lowerArmLeft.width  = lowerArmWidth*limbWidthMultiplier;
+    lowerArmLeft.height = lowerArmHeight*limbLengthener;
+    upperArmRight.width  = upperArmWidth*limbWidthMultiplier;
     upperArmRight.height = upperArmHeight;
-    lowerArmRight.width  = lowerArmWidth;
-    lowerArmRight.height = lowerArmHeight;
-    head.width  = headWidth;
+    lowerArmRight.width  = lowerArmWidth*limbWidthMultiplier;
+    lowerArmRight.height = lowerArmHeight*limbLengthener; 
+    head.width  = headWidth/0.86;
     head.height = headHeight;
     floor.height = floorHeight;
     floor.width = floorWidth;
@@ -275,7 +298,7 @@ function create() {
     floorCollisionGroup = game.physics.p2.createCollisionGroup();
     athleteStandingCollisionGroup = game.physics.p2.createCollisionGroup();
     athleteFallenCollisionGroup = game.physics.p2.createCollisionGroup();
-    game.physics.p2.updateBoundsCollisionGroup(false,false,false,false);
+    game.physics.p2.updateBoundsCollisionGroup(true,true,true,true);
 
     floor.body.setCollisionGroup(floorCollisionGroup);
     floor.body.collides(athleteStandingCollisionGroup);
@@ -304,18 +327,16 @@ function create() {
     // Turns on collisions set above
     game.physics.p2.setImpactEvents(true);
     
-    // Once the body parts have been created move them into the desired start position as calculated earlier.
-    // resetRunner();
 
     // Create joints between limbs
     maxForce = 10000;
-    hipLeft = game.physics.p2.createRevoluteConstraint(upperLegLeft, [0,-upperLegHeight/2],torso,[-legSeperator, torsoHeight/2],maxForce);
+    hipLeft = game.physics.p2.createRevoluteConstraint(upperLegLeft, [0,-upperLegHeight/2],torso,[-legSeperator, torsoHeight*legHeightDistance],maxForce);
     kneeLeft = game.physics.p2.createRevoluteConstraint(lowerLegLeft, [0,-lowerLegHeight/2],upperLegLeft,[0,upperLegHeight/2],maxForce);
     ankleLeft = game.physics.p2.createRevoluteConstraint(shoeLeft, [-shoeXOffset,-shoeLegDistance],lowerLegLeft,[0,lowerLegHeight/2],maxForce);
     upperLegLeft.connectedJoint = hipLeft;
     lowerLegLeft.connectedJoint = kneeLeft;
     shoeLeft.connectedJoint = ankleLeft;
-    hipRight = game.physics.p2.createRevoluteConstraint(upperLegRight, [0,-upperLegHeight/2],torso,[legSeperator, torsoHeight/2],maxForce);
+    hipRight = game.physics.p2.createRevoluteConstraint(upperLegRight, [0,-upperLegHeight/2],torso,[legSeperator, torsoHeight*legHeightDistance],maxForce);
     kneeRight = game.physics.p2.createRevoluteConstraint(lowerLegRight, [0,-lowerLegHeight/2],upperLegRight,[0,upperLegHeight/2],maxForce);
     ankleRight = game.physics.p2.createRevoluteConstraint(shoeRight, [-shoeXOffset,-shoeLegDistance],lowerLegRight,[0,lowerLegHeight/2],maxForce);
     upperLegRight.connectedJoint = hipRight;
@@ -474,7 +495,7 @@ function setAll(a, v) {
 }
 
 function distanceTraveled() {
-    return Math.floor((torso.x - torsoX)/20)/10;
+    return Math.floor((torso.x - torsoX)/20)/10 -0.1;
 }
 
 var stabalisingPower = 10;
@@ -482,7 +503,7 @@ var stabalisingAngle = 40;
 var hipPower = 1;
 var jointsPower = true;
  
-function update() {
+function update () {
 
     // Help the athlete stay upright
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
