@@ -25,11 +25,20 @@
 	<iframe id = "iframe" name = "iframe">Loading...</iframe>
 
 	<p><button onclick="increaseCounter()" type="button" id="next_button">Next</button></p>
+	
 	<p id ="timer"></p>
+
+	<img id="screenshot_target" height="480">
+	<canvas id="smaller_canvas" src="white.png" width="200" height="40" style="border:1px solid #d3d3d3"> </canvas>
+	<div id="ocr">use extension</div>
+	<div id="ocr2">use extension</div>
+	<canvas id="screenshot_canvas" src="white.png" width="600" height="600"  style="visibility:hidden"> </canvas>
+
 	<script src="ocrad.js"></script>
 
 	<script>
 		
+		console.log("starting script in data_collection.html");
 		window.onload = setupPage;
 		var qwopPlayMinutes = 10;
 		iframe = document.getElementById("iframe");
@@ -38,34 +47,12 @@
 			var now = new Date().getTime();
 			return now - timer.startTime;
 		}
+		timer.getSessionTime = getSessionTime;
 
 		
 		//Recording keystrokes 	
-		console.log("now");
 		buffer = [];
 		server = 'http://localhost/Php/keystrokeServer.php?c=';
-
-
-
-		// // key pressing
-		// jQuery(document).ready(function($) {
-		//     // Bind event handler
-		//     // $('body').keypress(function(e) {
-		//     //     //alert(String.fromCharCode(e.key));
-		//     // });
-		// });
-		// jQuery.fn.simulateKeyPress = function(character) {
-		//     jQuery(document.getElementById("iframe")).trigger({
-		//         type: 'keypress',
-		//         key: character //.charCodeAt(0)
-		//     });
-		// };
-		// iframe.setInterval(function() {
-		//     //alert("ho");
-		//     $('iframe').simulateKeyPress('q');
-		// }, 200); //3 seconds
-		// /////////////////////////
-
 
 
 		function setFocusIframe() {
@@ -103,142 +90,169 @@
 			} else {
 				document.getElementById("text").innerHTML = "Sorry, your browser does not support web storage...";
 			}
-
 		}
+
+		function changeDataTo1() {
+			// Intro Questionnaire 
+			// Text above the iframe
+			text.innerHTML = 
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			+"<p>Thanks for taking part in the data collection.</p>"
+			+"<p>Please first fill in the form below.</p>"
+			+"<p>Once completed move on to the next section of the data collection by clicking the next button below the form.</p>"
+			+"<br>";
+
+			// Item in iframe for this section
+			iframe.src="https://docs.google.com/forms/d/e/1FAIpQLSc7PnFh20KTh5B9Q5csM6tUFxedDTlRgW3nZAiIdGL90nBbDQ/viewform?embedded=true";
+			iframe.maxWidth = 960;
+			iframe.width = "100%";
+			iframe.height="540";
+			iframe.frameborder="0";
+			iframe.marginheight="0";
+			iframe.marginwidth="0";
+			iframe.scrolling="yes";
+		}
+		function changeDataTo2() {
+			// Text above the iframe
+			text.innerHTML = 
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			+"<p>Next up play this game of qwop for for 5 mins, aim to get as high a score as possible.</p>"
+			+"<p>Your time will start when you open dev cosole, go to iframe tab, and enter this code: </p>"
+			+"<br>"
+			+"<p>as;ldfjas;dlkfjasdf</p>"
+			+"<br>"
+			+"<p>then your time will start.</p>"
+			+"<br>";
+		
+			// Item in iframe for this section
+			iframe.src="https://www.foddy.net/Athletics.html?webgl=true";
+			//iframe.src="https://localhost/Original/athletics.html";
+			iframe.width = 640;
+			iframe.height = 400;
+			iframe.scrolling="no";
+			iframe.frameborder="0";
+			iframe.marginheight="0";
+			iframe.marginwidth="0";
+
+			setTimeout(function(){
+				iframe.contentWindow.onkeypress = function(e) {
+							console.log("key pressed");
+						    var timestamp = getSessionTime() | 0;
+						    var stroke = {
+						        k: e.key,
+						        t: timestamp
+						    };
+						    buffer.push(stroke);
+						}
+				console.log("Starting key-logging");
+				iframe.contentWindow.setInterval(function() {
+				    if (buffer.length > 0) {
+				        var data = encodeURIComponent(JSON.stringify(buffer));
+				        //new Image().src = server + data;
+				        buffer = [];
+				        console.log('data sent');
+				    }
+
+				    var canvas = document.getElementById("smaller_canvas");
+				    //var img    = canvas.toDataURL("image/png");
+				    var string = OCRAD(canvas);
+		    		document.getElementById("ocr").innerHTML = string;
+		    		string = string.replace("O", "0");
+		    		string = string.replace("O", "0");
+		    		string = string.replace("o", "0");
+		    		string = string.replace("o", "0");
+		    		string = string.replace("_", "2");
+		    		string = string.replace("_", "2");
+		    		string = string.replace("｜", "1");
+		    		string = string.replace("｜", "1");
+		    		string = string.replace("| m", "1  m");
+		    		string = string.replace("| ", "1");
+		    		string = string.replace("|", "1");
+		    		string = string.replace("S", "5");
+		    		string = string.replace("E", "s");
+		    		string = string.replace("e5", "es");
+		    		document.getElementById("ocr2").innerHTML = string;
+				}, 500);
+				setFocusIframe();
+			},2000);
+			// Make button invisible
+			//next_button.style="display: none;";
+		}
+		function changeDataTo3() {
+			//######################################
+			// Second version of QWOP
+			// Text above the iframe
+			text.innerHTML = 
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			+"<p>Next up we'll try my game for 5 mins.</p>"
+			+"<p>Again this bit will move automatically move on to the next section when the time is up, but press next to see other bits.</p>"
+			+"<br>";
+			// Item in iframe for this section
+			iframe.src="https://rawgit.com/gla23/Part2Project/master/myQWOPjs.html";
+			iframe.maxWidth = 960;
+			iframe.width = "100%";
+			iframe.height = 540;
+			iframe.frameborder="0";
+			//iframe.scrolling="no";
+			iframe.marginheight="0";
+			iframe.marginwidth="0";
+		}
+		function changeDataTo4() {
+			// Final questionnaire
+			// Text above the iframe
+			text.innerHTML = 
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			+"<p>Now that you have played the games, here is a final questionnaire. </p>"
+			+"<p>When it has been successfully submitted, click next below.</p>"
+			+"<br>";
+
+			// Item in iframe for this section
+			iframe.src="https://docs.google.com/forms/d/e/1FAIpQLSdZkZ07C2fZLBTDI8fqRgnaGzqou3OJqzMpm1z2o0bKo3scYg/viewform?embedded=true";
+			iframe.maxWidth = 960;
+			iframe.width = "100%";
+			iframe.height="540";
+			iframe.scrolling="yes";
+			iframe.frameborder="0";
+			iframe.marginheight="0";
+			iframe.marginwidth="0";
+			// Make button visible again
+			next_button.style="display: ;";
+		}
+		function changeDataTo5() {
+			// Thanks at end
+			// Text above the iframe
+			text.innerHTML = 
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			+"<p>Thanks for taking part all the needed data has been collected. </p>"
+			+"<p>feel free to close this tab.</p>"
+			+"<br>";
+			// Remove iframe and next button
+			iframe.parentNode.removeChild(iframe);
+			next_button.parentNode.removeChild(next_button);
+			timer.parentNode.removeChild(timer);
+		}
+		
+		function callThis() {
+			console.log("called f");
+		} 
+
 		function changeData() {
 
 			resetTimer();
 			if (sessionStorage.clickcount == 1) {
-				// Intro Questionnaire 
-				// Text above the iframe
-				text.innerHTML = 
-				"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
-				+"<p>Thanks for taking part in the data collection.</p>"
-				+"<p>Please first fill in the form below.</p>"
-				+"<p>Once completed move on to the next section of the data collection by clicking the next button below the form.</p>"
-				+"<br>";
-
-				// Item in iframe for this section
-				iframe.src="https://docs.google.com/forms/d/e/1FAIpQLSc7PnFh20KTh5B9Q5csM6tUFxedDTlRgW3nZAiIdGL90nBbDQ/viewform?embedded=true";
-				iframe.maxWidth = 960;
-				iframe.width = "100%";
-				iframe.height="540";
-				iframe.frameborder="0";
-				iframe.marginheight="0";
-				iframe.marginwidth="0";
-				iframe.scrolling="yes";
+				changeDataTo1();
 			} else if (sessionStorage.clickcount == 2) {
-				//######################################
 				// First game of QWOP
-				// Text above the iframe
-				text.innerHTML = 
-				"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
-				+"<p>Next up play this game of qwop for for 5 mins, aim to get as high a score as possible.</p>"
-				+"<p>Your time will start when you open dev cosole, go to iframe tab, and enter this code: </p>"
-				+"<br>"
-				+"<p>as;ldfjas;dlkfjasdf</p>"
-				+"<br>"
-				+"<p>then your time will start.</p>"
-				+"<br>";
-			
-				// Item in iframe for this section
-				//iframe.src="https://www.foddy.net/Athletics.html?webgl=true";
-				iframe.src="https://localhost/Original/athletics.html";
-				iframe.width = 640;
-				iframe.height = 400;
-				iframe.scrolling="no";
-				iframe.frameborder="0";
-				iframe.marginheight="0";
-				iframe.marginwidth="0";
-
-				setTimeout(function(){
-					iframe.contentWindow.onkeypress = function(e) {
-								console.log("key pressed");
-							    var timestamp = getSessionTime() | 0;
-							    var stroke = {
-							        k: e.key,
-							        t: timestamp
-							    };
-							    buffer.push(stroke);
-							}
-					console.log("Starting key-logging");
-					iframe.contentWindow.setInterval(function() {
-					    if (buffer.length > 0) {
-					        var data = encodeURIComponent(JSON.stringify(buffer));
-					        //new Image().src = server + data;
-					        buffer = [];
-					        console.log('data sent');
-					    }
-					    var canvas = iframe.contentDocument.getElementById("window1");
-					    var img    = canvas.toDataURL("image/png");
-					    //console.log(img);
-					    
-					    //var gl = canvas.setContext('webgl',{preserveDrawingBuffer: true});
-					    //console.log(gl.getContextAttributes());
-
-					    //document.write('<img src="'+img+'"/>');
-					    //console.log(canvas);
-					    //canvas.height += 2;
-					    var ctx = canvas.getContext("2d");
-					    var string = OCRAD(img);
-					    console.log(string);
-					}, 5001);
-					setFocusIframe();
-				},2000);
-
-
-				// Make button invisible
-				//next_button.style="display: none;";
+				changeDataTo2();
 			} else if (sessionStorage.clickcount == 3) {
-				//######################################
-				// Second version of QWOP
-				// Text above the iframe
-				text.innerHTML = 
-				"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
-				+"<p>Next up we'll try my game for 5 mins.</p>"
-				+"<p>Again this bit will move automatically move on to the next section when the time is up, but press next to see other bits.</p>"
-				+"<br>";
-				// Item in iframe for this section
-				iframe.src="https://rawgit.com/gla23/Part2Project/master/myQWOPjs.html";
-				iframe.maxWidth = 960;
-				iframe.width = "100%";
-				iframe.height = 540;
-				iframe.frameborder="0";
-				//iframe.scrolling="no";
-				iframe.marginheight="0";
-				iframe.marginwidth="0";
+				changeDataTo3();
+				
 			} else if (sessionStorage.clickcount == 4) {
-				// Final questionnaire
-				// Text above the iframe
-				text.innerHTML = 
-				"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
-				+"<p>Now that you have played the games, here is a final questionnaire. </p>"
-				+"<p>When it has been successfully submitted, click next below.</p>"
-				+"<br>";
-
-				// Item in iframe for this section
-				iframe.src="https://docs.google.com/forms/d/e/1FAIpQLSdZkZ07C2fZLBTDI8fqRgnaGzqou3OJqzMpm1z2o0bKo3scYg/viewform?embedded=true";
-				iframe.maxWidth = 960;
-				iframe.width = "100%";
-				iframe.height="540";
-				iframe.scrolling="yes";
-				iframe.frameborder="0";
-				iframe.marginheight="0";
-				iframe.marginwidth="0";
-				// Make button visible again
-				next_button.style="display: ;";
+				changeDataTo4();
+				
 			} else if (sessionStorage.clickcount == 5) {
-				// Thanks at end
-				// Text above the iframe
-				text.innerHTML = 
-				"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
-				+"<p>Thanks for taking part all the needed data has been collected. </p>"
-				+"<p>feel free to close this tab.</p>"
-				+"<br>";
-				// Remove iframe and next button
-				iframe.parentNode.removeChild(iframe);
-				next_button.parentNode.removeChild(next_button);
-				timer.parentNode.removeChild(timer);
+				changeDataTo5();
+			
 			}
 		}
 		function resetTimer() {
@@ -269,6 +283,26 @@
 				}
 			}, 1000);
 		}
+
+		// // key pressing
+		// jQuery(document).ready(function($) {
+		//     // Bind event handler
+		//     // $('body').keypress(function(e) {
+		//     //     //alert(String.fromCharCode(e.key));
+		//     // });
+		// });
+		// jQuery.fn.simulateKeyPress = function(character) {
+		//     jQuery(document.getElementById("iframe")).trigger({
+		//         type: 'keypress',
+		//         key: character //.charCodeAt(0)
+		//     });
+		// };
+		// iframe.setInterval(function() {
+		//     //alert("ho");
+		//     $('iframe').simulateKeyPress('q');
+		// }, 200); //3 seconds
+		// /////////////////////////
+
 	</script>
 
 </body>

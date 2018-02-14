@@ -1,0 +1,36 @@
+
+Subject: Phase 1 - Andersen: QWOP in JavaScript
+
+Phase 1 Project Selection Status Report
+
+Name: George Andersen
+
+College: Robinson
+
+User Identifier: gla23
+
+Director of Studies: Dr. Alan Mycroft
+
+Please complete 1, 2 and 3 below.
+
+1. Please write 100 words on your current project ideas.
+
+The game QWOP puts players in keyboard control of a rag doll athlete, and the aim is to complete the 100m race without falling over. The athlete's 2D limbs are rendered on the screen, and the Q key drives the runner's right thigh forward and left thigh backward, and the W key does the opposite. The O and P keys do the same but for the calves.
+I propose to remake QWOP using a Javascript library called Phaser, designed for making games. It has a system of 'sprite's that can be used to render the graphics for each limb, and the rag doll physics can then be made between them.
+An extension idea is to build an AI agent that can complete the race, the faster the better.
+
+
+2. Please list names of potential project supervisors.
+
+Dr. Alastair Beresford
+
+
+3. Is there any chance that your project will involve any computing resources other than the Computing Service's MCS and software that is already installed there, for example: your own machine, machines in College, special peripherals, imported software packages, special hardware, network access, substantial extra disc space on the MCS.
+
+I will be using my own machine.
+
+If so indicate below what, and what it is needed for.
+
+Windows laptop: Intel Core i7-5500U, 16 GB RAM, 1 TB+8 GB SSHD, AMD R9 4 GB GPU.
+Will be used for the research, coding, write up etc.
+Will be backing up on GitHub.
