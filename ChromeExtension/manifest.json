@@ -12,7 +12,7 @@
   },
   "background": {
       "scripts": ["eventPage.js"],
-      "persistent": false
+      "persistent": true
     },
   "permissions": [
     "activeTab",

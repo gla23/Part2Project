@@ -23,16 +23,20 @@
 
 	<!-- iframe used in each secction - holds google form or a qwop game -->
 	<iframe id = "iframe" name = "iframe">Loading...</iframe>
+	<br>
+	<br>
 
 	<p><button onclick="increaseCounter()" type="button" id="next_button">Next</button></p>
 	
-	<p id ="timer"></p>
+	<p id ="timer" style="visibility: hidden"></p>
 
-	<img id="screenshot_target" height="480">
-	<canvas id="smaller_canvas" src="white.png" width="200" height="40" style="border:1px solid #d3d3d3"> </canvas>
-	<div id="ocr">use extension</div>
-	<div id="ocr2">use extension</div>
+	<div id="ocr" style="visibility:hidden">use extension</div>
+	<div id="ocr2">Please use extension: click the Data collection extension icon in the top right of chrome.</div>
+	<canvas id="smaller_canvas" src="white.png" width="130" height="40" style="visibility:hidden"> </canvas>
+	<!-- style="border:1px solid #d3d3d3" -->
+	<img id="screenshot_target" height="0">
 	<canvas id="screenshot_canvas" src="white.png" width="600" height="600"  style="visibility:hidden"> </canvas>
+
 
 	<script src="ocrad.js"></script>
 
@@ -40,26 +44,30 @@
 		
 		console.log("starting script in data_collection.html");
 		window.onload = setupPage;
-		var qwopPlayMinutes = 10;
+		var qwopPlayMinutes = 0.2;
+		var id = Math.floor(Math.random() * (99999-10000))+10000;
 		iframe = document.getElementById("iframe");
+		text = document.getElementById("text");
+		timer = document.getElementById("timer");
+		next_button = document.getElementById("next_button");
+
 		function getSessionTime() {
 			// Get today's date and time
 			var now = new Date().getTime();
 			return now - timer.startTime;
 		}
-		timer.getSessionTime = getSessionTime;
 
 		
 		//Recording keystrokes 	
 		buffer = [];
-		server = 'http://localhost/Php/keystrokeServer.php?c=';
+		server = 'http://localhost/Php/projectServer.php';
 
 
 		function setFocusIframe() {
 		    iframe.contentWindow.focus();
 		}
 		// Moving around sections of the page
-		function increaseCounter() {
+;		function increaseCounter() {
 			if(typeof(Storage) !== "undefined") {
 				if (sessionStorage.clickcount) {
 					sessionStorage.clickcount = Number(sessionStorage.clickcount)+1;
@@ -72,9 +80,6 @@
 			changeData();
 		}
 		function setupPage() {
-			text = document.getElementById("text");
-			timer = document.getElementById("timer");
-			next_button = document.getElementById("next_button");
 
 			setTimeout(setFocusIframe, 4000);
 
@@ -97,9 +102,11 @@
 			// Text above the iframe
 			text.innerHTML = 
 			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			+"<br>"
 			+"<p>Thanks for taking part in the data collection.</p>"
-			+"<p>Please first fill in the form below.</p>"
-			+"<p>Once completed move on to the next section of the data collection by clicking the next button below the form.</p>"
+			+"<p>Please first fill in the form below. Your participant ID is: <b>"+id+"</b> </p>"
+			+"<br>"
+			+"<p><b>Once you have submitted the survey</b>, move on to the next section of the data collection by clicking the next button below the form.</p>"
 			+"<br>";
 
 			// Item in iframe for this section
@@ -116,10 +123,7 @@
 			// Text above the iframe
 			text.innerHTML = 
 			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
-			+"<p>Next up play this game of qwop for for 5 mins, aim to get as high a score as possible.</p>"
-			+"<p>Your time will start when you open dev cosole, go to iframe tab, and enter this code: </p>"
-			+"<br>"
-			+"<p>as;ldfjas;dlkfjasdf</p>"
+			+"<p>Next up play this game of qwop for for "+qwopPlayMinutes+" mins, aim to get as high a score as possible.</p>"
 			+"<br>"
 			+"<p>then your time will start.</p>"
 			+"<br>";
@@ -133,58 +137,74 @@
 			iframe.frameborder="0";
 			iframe.marginheight="0";
 			iframe.marginwidth="0";
-
+			timer.style.visibility = "visible";
+			next_button.style.visibility = "hidden";
 			setTimeout(function(){
-				iframe.contentWindow.onkeypress = function(e) {
-							console.log("key pressed");
-						    var timestamp = getSessionTime() | 0;
-						    var stroke = {
-						        k: e.key,
-						        t: timestamp
-						    };
-						    buffer.push(stroke);
-						}
+ 				
 				console.log("Starting key-logging");
+				iframe.contentWindow.onkeypress = function(e) {
+					console.log("key pressed");
+				    var timestamp = getSessionTime() | 0;
+				    var action = {
+				        k: e.key,
+				        t: timestamp
+				    };
+				    buffer.push(action);
+				}
+				
 				iframe.contentWindow.setInterval(function() {
 				    if (buffer.length > 0) {
 				        var data = encodeURIComponent(JSON.stringify(buffer));
-				        //new Image().src = server + data;
+				        new Image().src = server + "?data=" + data + "&id=" + id + "&version=fod";
 				        buffer = [];
-				        console.log('data sent');
+				    }
+				}, 500);
+
+				iframe.contentWindow.setInterval(function() {
+				
+
+				    if (buffer.length > 0) {
+				        var data = encodeURIComponent(JSON.stringify(buffer));
+				        new Image().src = server + data;
+				        buffer = [];
 				    }
 
 				    var canvas = document.getElementById("smaller_canvas");
-				    //var img    = canvas.toDataURL("image/png");
 				    var string = OCRAD(canvas);
-		    		document.getElementById("ocr").innerHTML = string;
-		    		string = string.replace("O", "0");
-		    		string = string.replace("O", "0");
-		    		string = string.replace("o", "0");
-		    		string = string.replace("o", "0");
-		    		string = string.replace("_", "2");
-		    		string = string.replace("_", "2");
-		    		string = string.replace("｜", "1");
-		    		string = string.replace("｜", "1");
-		    		string = string.replace("| m", "1  m");
-		    		string = string.replace("| ", "1");
-		    		string = string.replace("|", "1");
-		    		string = string.replace("S", "5");
-		    		string = string.replace("E", "s");
-		    		string = string.replace("e5", "es");
-		    		document.getElementById("ocr2").innerHTML = string;
+		    		document.getElementById("ocr").innerHTML = string; 
+		    		
+		    		n = string.lastIndexOf('m');
+		    		if (n==-1) {
+		    			console.log("string doesn't have an m: "+string);
+	    			} else {
+		    			string = string.substring(0,n);
+		    			string = string.replace(/O/g,"0");
+		    			string = string.replace(/o/g,"0");
+		    			string = string.replace(/_/g,"2");
+		    			string = string.replace(/｜/g,"1");
+		    			string = string.replace(/I/g,"1");
+		    			string = string.replace(/i/g,"1");
+		    			string = string.replace(/l/g,"1");
+		    			string = string.replace(/S/g,"5");
+		    			string = string.replace(/s/g,"5");
+		    			string = string.replace("|","1");
+		    			string = string.replace("|","1");
+		    			string = string.replace("|","1");
+		    			string = string.replace(" ","");
+		    			document.getElementById("ocr2").innerHTML = string;	
+	    			}
+		    		
 				}, 500);
 				setFocusIframe();
 			},2000);
-			// Make button invisible
-			//next_button.style="display: none;";
 		}
 		function changeDataTo3() {
 			//######################################
-			// Second version of QWOP
+			// My version of QWOP
 			// Text above the iframe
 			text.innerHTML = 
 			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
-			+"<p>Next up we'll try my game for 5 mins.</p>"
+			+"<p>Now please play this game for "+qwopPlayMinutes+" mins.</p>"
 			+"<p>Again this bit will move automatically move on to the next section when the time is up, but press next to see other bits.</p>"
 			+"<br>";
 			// Item in iframe for this section
@@ -203,7 +223,7 @@
 			text.innerHTML = 
 			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
 			+"<p>Now that you have played the games, here is a final questionnaire. </p>"
-			+"<p>When it has been successfully submitted, click next below.</p>"
+			+"<p>When you have submitted your answers, click the next below.</p>"
 			+"<br>";
 
 			// Item in iframe for this section
@@ -215,9 +235,9 @@
 			iframe.frameborder="0";
 			iframe.marginheight="0";
 			iframe.marginwidth="0";
-			// Make button visible again
-			next_button.style="display: ;";
-		}
+			timer.style.visibility = "hidden";
+			next_button.style.visibility = "visible";
+		} 
 		function changeDataTo5() {
 			// Thanks at end
 			// Text above the iframe
@@ -232,9 +252,6 @@
 			timer.parentNode.removeChild(timer);
 		}
 		
-		function callThis() {
-			console.log("called f");
-		} 
 
 		function changeData() {
 
@@ -243,9 +260,17 @@
 				changeDataTo1();
 			} else if (sessionStorage.clickcount == 2) {
 				// First game of QWOP
-				changeDataTo2();
+				if (id>45000){
+					changeDataTo2();					
+				} else {
+					changeDataTo3();
+				}
 			} else if (sessionStorage.clickcount == 3) {
-				changeDataTo3();
+				if (id>45000){
+					changeDataTo3();	
+				} else {
+					changeDataTo2();
+				}
 				
 			} else if (sessionStorage.clickcount == 4) {
 				changeDataTo4();
@@ -262,24 +287,26 @@
 			resetTimer();
 			// Update the count down every 1 second
 			var x = setInterval(function() {
+				if ((sessionStorage.clickcount == 2)||(sessionStorage.clickcount == 3)) {
+					// Get today's date and time
+					var now = new Date().getTime();
+					sessionTime = getSessionTime();
 
-				// Get today's date and time
-				var now = new Date().getTime();
-				sessionTime = getSessionTime();
+					// Act when the timer gets to specific points
+					if (sessionTime > qwopPlayMinutes*60*1000) {
+						// Move on to next section
+						next_button.onclick();
+					} else {
+						// Display session time
+						var minutes = Math.floor(sessionTime / (1000 * 60));
+						var seconds = Math.floor((sessionTime % (1000 * 60)) / 1000);
+						timer.innerHTML = minutes + "m " + seconds + "s / "+qwopPlayMinutes+"m";
+					}
 
-				// Act when the timer gets to specific points
-				if (sessionTime < 1000) {
-					timer.innerHTML = "less than 1 sec";
-				} else {
-					// Display session time
-					var minutes = Math.floor(sessionTime / (1000 * 60));
-					var seconds = Math.floor((sessionTime % (1000 * 60)) / 1000);
-					timer.innerHTML = minutes + "m " + seconds + "s ";
-				}
-
-				if (sessionTime > qwopPlayMinutes*1000*60*60) {
-					// Move on the next section
-					//x.clearInterval();k
+					if (sessionTime > qwopPlayMinutes*1000*60*60) {
+						// Move on the next section
+						//x.clearInterval();k
+					}	
 				}
 			}, 1000);
 		}
