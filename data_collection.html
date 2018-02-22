@@ -26,11 +26,12 @@
 	<br>
 	<br>
 
-	<p><button onclick="increaseCounter()" type="button" id="next_button">Next</button></p>
+	<p><button onclick="increaseCounter()" type="button" id="next_button" style="visibility:hidden">Next</button></p>
 	
 	<p id ="timer" style="visibility: hidden"></p>
 
 	<div id="ocr" style="visibility:hidden">use extension</div>
+	<!-- <div id="ocr">use extension</div> -->
 	<div id="ocr2">Please use extension: click the Data collection extension icon in the top right of chrome.</div>
 	<canvas id="smaller_canvas" src="white.png" width="130" height="40" style="visibility:hidden"> </canvas>
 	<!-- style="border:1px solid #d3d3d3" -->
@@ -44,12 +45,18 @@
 		
 		console.log("starting script in data_collection.html");
 		window.onload = setupPage;
-		var qwopPlayMinutes = 0.2;
+		//document.onload = changeData();
+		var qwopPlayMinutes = 0.4;
+		var currentQwopDistanceTraveled = 0;
+		sessionStorage.clickcount = 1;
+
 		var id = Math.floor(Math.random() * (99999-10000))+10000;
 		iframe = document.getElementById("iframe");
 		text = document.getElementById("text");
 		timer = document.getElementById("timer");
 		next_button = document.getElementById("next_button");
+		var key = ["q","w","o","p"];
+		var key_down = [0,0,0,0];
 
 		function getSessionTime() {
 			// Get today's date and time
@@ -58,16 +65,16 @@
 		}
 
 		
-		//Recording keystrokes 	
+		//Recording keystrokes
 		buffer = [];
-		server = 'http://localhost/Php/projectServer.php';
+		server = 'http://gla23.user.srcf.net/projectServer.php';
 
 
 		function setFocusIframe() {
 		    iframe.contentWindow.focus();
 		}
 		// Moving around sections of the page
-;		function increaseCounter() {
+		function increaseCounter() {
 			if(typeof(Storage) !== "undefined") {
 				if (sessionStorage.clickcount) {
 					sessionStorage.clickcount = Number(sessionStorage.clickcount)+1;
@@ -101,10 +108,14 @@
 			// Intro Questionnaire 
 			// Text above the iframe
 			text.innerHTML = 
-			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/6 </h1>"
+			+"<p>participant ID: <b>"+id+"</b></p>"
 			+"<br>"
 			+"<p>Thanks for taking part in the data collection.</p>"
-			+"<p>Please first fill in the form below. Your participant ID is: <b>"+id+"</b> </p>"
+			+"<p>If you have any problems ask me for help.</p>"
+			+"<p>also <b>Do not refresh the page at any point</b>, even if something takes a while to load.</p>"
+			+"<br>"
+			+"<p>First of all please fill in the form below.</p>"
 			+"<br>"
 			+"<p><b>Once you have submitted the survey</b>, move on to the next section of the data collection by clicking the next button below the form.</p>"
 			+"<br>";
@@ -122,7 +133,9 @@
 		function changeDataTo2() {
 			// Text above the iframe
 			text.innerHTML = 
-			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/6 </h1>"
+			+"<p>participant ID: <b>"+id+"</b></p>"
+			+"<br>"
 			+"<p>Next up play this game of qwop for for "+qwopPlayMinutes+" mins, aim to get as high a score as possible.</p>"
 			+"<br>"
 			+"<p>then your time will start.</p>"
@@ -139,36 +152,58 @@
 			iframe.marginwidth="0";
 			timer.style.visibility = "visible";
 			next_button.style.visibility = "hidden";
+			iframe.style.visibility = "visible";
+
 			setTimeout(function(){
  				
 				console.log("Starting key-logging");
-				iframe.contentWindow.onkeypress = function(e) {
-					console.log("key pressed");
-				    var timestamp = getSessionTime() | 0;
-				    var action = {
-				        k: e.key,
-				        t: timestamp
-				    };
-				    buffer.push(action);
+				iframe.contentWindow.onkeydown = function(e) {
+					if ((e.key=="r")||(e.key==" ")) {
+						// Reset key recording
+						var timestamp = getSessionTime() | 0;
+						var action = {
+						    key: "restart",
+						    t: timestamp,
+						    ud: currentQwopDistanceTraveled
+						};
+						buffer.push(action);
+					}
+					for (var i = key.length - 1; i >= 0; i--) {
+						if (e.key == key[i]) {
+							// If they key is up make it down
+							if (!key_down[i]) {
+								key_down[i] = !key_down[i];
+							    var timestamp = getSessionTime() | 0;
+							    var action = {
+							        key: e.key,
+							        t: timestamp,
+							        ud: "d"
+							    };
+							    buffer.push(action);
+							}
+						}
+					}
 				}
-				
-				iframe.contentWindow.setInterval(function() {
-				    if (buffer.length > 0) {
-				        var data = encodeURIComponent(JSON.stringify(buffer));
-				        new Image().src = server + "?data=" + data + "&id=" + id + "&version=fod";
-				        buffer = [];
-				    }
-				}, 500);
+				iframe.contentWindow.onkeyup = function(e) {
+				    for (var i = key.length - 1; i >= 0; i--) {
+						if (e.key == key[i]) {
+							// If they key is down make it up
+							if (key_down[i]) {
+								key_down[i] = !key_down[i];
+							    var timestamp = getSessionTime() | 0;
+							    var action = {
+							        key: e.key,
+							        t: timestamp,
+							        ud: "u"
+							    };
+							    buffer.push(action);
+							}
+						}
+					}
+				}
 
-				iframe.contentWindow.setInterval(function() {
-				
 
-				    if (buffer.length > 0) {
-				        var data = encodeURIComponent(JSON.stringify(buffer));
-				        new Image().src = server + data;
-				        buffer = [];
-				    }
-
+				var ocrInterval = iframe.contentWindow.setInterval(function() {
 				    var canvas = document.getElementById("smaller_canvas");
 				    var string = OCRAD(canvas);
 		    		document.getElementById("ocr").innerHTML = string; 
@@ -192,18 +227,58 @@
 		    			string = string.replace("|","1");
 		    			string = string.replace(" ","");
 		    			document.getElementById("ocr2").innerHTML = string;	
+		    			currentQwopDistanceTraveled = Math.round(Number(string)*10-2)/10;
+		    			console.log(string + " : "+currentQwopDistanceTraveled);
 	    			}
+					
+
+					timestamp = getSessionTime() | 0;
+					if (timestamp > qwopPlayMinutes*60000){
+						console.log(ocrInterval);
+						iframe.contentWindow.clearInterval(ocrInterval);
+					} else {
+						var regularDistanceMarker = {
+						    key: "distance",
+						    t: timestamp,
+						    ud: currentQwopDistanceTraveled
+						};
+						buffer.push(regularDistanceMarker);
+					    if (buffer.length > 0) {
+					        var data = encodeURIComponent(JSON.stringify(buffer));
+					        new Image().src = server + "?data=" + data + "&id=" + id + "&version=fod";
+					        buffer = [];
+					    }
+					}
+				    
 		    		
 				}, 500);
 				setFocusIframe();
 			},2000);
+		}
+		
+		function changeDataToBreak() {
+			// Thanks at end
+			// Text above the iframe
+			text.innerHTML = 
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/6 </h1>"
+			+"<p>participant ID: <b>"+id+"</b></p>"
+			+"<br>"
+			+"<p>Your "+qwopPlayMinutes+" minutes are up!</p>"
+			+"<p>In the next section there will be another version of the game, with the same time limit. Enjoy the game (if possible) and maximise your score. Press the next button to continue.</p>"
+			+"<br>";
+			// Remove iframe and next button
+			timer.style.visibility = "hidden";
+			iframe.style.visibility = "hidden";
+			next_button.style.visibility = "visible";
 		}
 		function changeDataTo3() {
 			//######################################
 			// My version of QWOP
 			// Text above the iframe
 			text.innerHTML = 
-			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/6 </h1>"
+			+"<p>participant ID: <b>"+id+"</b></p>"
+			+"<br>"
 			+"<p>Now please play this game for "+qwopPlayMinutes+" mins.</p>"
 			+"<p>Again this bit will move automatically move on to the next section when the time is up, but press next to see other bits.</p>"
 			+"<br>";
@@ -216,13 +291,42 @@
 			//iframe.scrolling="no";
 			iframe.marginheight="0";
 			iframe.marginwidth="0";
+			timer.style.visibility = "visible";
+			iframe.style.visibility = "visible";
+			next_button.style.visibility = "hidden";
+
+			// setTimeout(function(){
+			// 	console.log("now setting")
+			// 	iframe.contentWindow.onkeypress = function(e) {
+			// 		console.log("key pressed");
+			// 	    var timestamp = getSessionTime() | 0;
+			// 	    var action = {
+			// 	        k: e.key,
+			// 	        t: timestamp
+			// 	    };
+			// 	    buffer.push(action);
+			// 	}
+				
+			// 	iframe.contentWindow.setInterval(function() {
+			// 	    if (buffer.length > 0) {
+			// 	        var data = encodeURIComponent(JSON.stringify(buffer));
+			// 	        new Image().src = server + "?data=" + data + "&id=" + id + "&version=gla";
+			// 	        buffer = [];
+			// 	    }
+			// 	}, 500);
+			// 	setFocusIframe();
+			// },3000);
 		}
 		function changeDataTo4() {
 			// Final questionnaire
 			// Text above the iframe
 			text.innerHTML = 
-			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
-			+"<p>Now that you have played the games, here is a final questionnaire. </p>"
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/6 </h1>"
+			+"<p>participant ID: <b>"+id+"</b></p>"
+			+"<br>"
+			+"<p>Time up!</p>"
+			+"<br>"
+			+"<p>Now that you have played the games, please complete this final questionnaire. </p>"
 			+"<p>When you have submitted your answers, click the next below.</p>"
 			+"<br>";
 
@@ -242,9 +346,11 @@
 			// Thanks at end
 			// Text above the iframe
 			text.innerHTML = 
-			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/5</h1>"
+			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/6 </h1>"
+			+"<p>participant ID: <b>"+id+"</b></p>"
+			+"<br>"
 			+"<p>Thanks for taking part all the needed data has been collected. </p>"
-			+"<p>feel free to close this tab.</p>"
+			+"<p></p>"
 			+"<br>";
 			// Remove iframe and next button
 			iframe.parentNode.removeChild(iframe);
@@ -266,18 +372,19 @@
 					changeDataTo3();
 				}
 			} else if (sessionStorage.clickcount == 3) {
+				changeDataToBreak();
+			} else if (sessionStorage.clickcount == 4) {
 				if (id>45000){
 					changeDataTo3();	
 				} else {
 					changeDataTo2();
 				}
-				
-			} else if (sessionStorage.clickcount == 4) {
+			
+			} else if (sessionStorage.clickcount == 5) {
 				changeDataTo4();
 				
-			} else if (sessionStorage.clickcount == 5) {
+			} else if (sessionStorage.clickcount == 6) {
 				changeDataTo5();
-			
 			}
 		}
 		function resetTimer() {
@@ -287,7 +394,7 @@
 			resetTimer();
 			// Update the count down every 1 second
 			var x = setInterval(function() {
-				if ((sessionStorage.clickcount == 2)||(sessionStorage.clickcount == 3)) {
+				if ((sessionStorage.clickcount == 2)||(sessionStorage.clickcount == 4)) {
 					// Get today's date and time
 					var now = new Date().getTime();
 					sessionTime = getSessionTime();

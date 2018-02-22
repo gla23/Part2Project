@@ -34,10 +34,6 @@ var JKey, KKey, HKey, LKey, SKey, DKey, AKey, FKey;
 var floorCollisionGroup, athleteStandingCollisionGroup, athleteFallenCollisionGroup;
 var coverSprite, highscoreMarker;
 
-var currentScore = 0.0;
-var highscore = 0.0;
-var gameOver = false;
-
 // Easy mode joint restrictions
 // var  hipMaxAngle = Phaser.Math.degToRad( 105);
 // var  hipMinAngle = Phaser.Math.degToRad(-20 );
@@ -83,7 +79,7 @@ var originalGraphics = 1;
 // Physics values
 var gravity = 400; // 600 seems realistic 400 seems good
 var massScale = 1.000015;
-var muscleMotorPower = 3.7; //4 and 3.5 good for 3,1,2.5,2 masses
+var muscleMotorPower = 3.5; //4 and 3.5 good for 3,1,2.5,2 masses
 var playerFriction = 10; // 3.5/7 good for 3,1,2.5,2 masses
 // Body dimensions
 var bodyScale = 0.8; //0.8
@@ -99,21 +95,19 @@ var upperLegMass = 1*massScale;
 var lowerLegMass = 2.5*massScale; // 1.8
 var shoeMass = 2*massScale;
 
-
+var currentScore = 0.0;
+var highscore = 0.0;
+var gameOver = false;
+var startTime = 0;
+var timer;
+var buffer = [];
+var server = 'http://gla23.user.srcf.net/projectServer.php';
+var id = "";
 
 function create() {
-    // Setup Variables
-    floorHeight = 10;
-    floorWidth = roomWidth;
-    torsoX = 450;
-    torsoY = 210;
-    sneakerSpeed = 0
 
-    // Set-up game
-    back = game.add.image(0,0, 'background');
-    back.fixedToCamera = true;
-    back.width = gameWidth;
-    back.height = gameHeight-floorHeight;
+    create2();
+
 
     var style = { font: "45px Arial", fill: "#eeeeee", align: "center", boundsAlignH: "center" };
     var styleSmall = { font: "25px Arial", fill: "#eeeeee", align: "center", boundsAlignH: "center" };
@@ -159,10 +153,16 @@ function create() {
     resetRunnerKey.onDown.add(resetRunner,this);
     toggleJointsKey = game.input.keyboard.addKey(Phaser.Keyboard.T);
     toggleJointsKey.onDown.add(toggleJointPower,this);
-    
-    KKey.onDown.add(function(){
-        console.log("k");
-    })
+
+    QKey.onDown.add(function(){addKeyToBuffer("q","d");});
+    WKey.onDown.add(function(){addKeyToBuffer("w","d");});
+    OKey.onDown.add(function(){addKeyToBuffer("o","d");});
+    PKey.onDown.add(function(){addKeyToBuffer("p","d");});
+    QKey.onUp.add(function(){addKeyToBuffer("q","u");});
+    WKey.onUp.add(function(){addKeyToBuffer("w","u");});
+    OKey.onUp.add(function(){addKeyToBuffer("o","u");});
+    PKey.onUp.add(function(){addKeyToBuffer("p","u");});
+    resetRunnerKey.onDown.add(function(){addKeyToBuffer("restart",distanceTraveled());});
 
     legHeightDistance = 0.4; //0.5
     upperLegMultiplier = 1.4; //1
@@ -419,6 +419,51 @@ function create() {
     elbowRight.lowerLimit = elbowMinAngle;
 }
 
+function create2() {
+
+    while (id.length != 5) {
+        id = prompt("Please enter your participant ID.","");
+    }
+
+    // Setup Variables
+    floorHeight = 10;
+    floorWidth = roomWidth;
+    torsoX = 450;
+    torsoY = 210;
+    sneakerSpeed = 0
+
+    // Set-up game
+    back = game.add.image(0,0, 'background');
+    back.fixedToCamera = true;
+    back.width = gameWidth;
+    back.height = gameHeight-floorHeight;
+    startTime = game.time.now;
+
+    // Keylogging
+    timer = game.time.create(false);
+    timer.loop(500,sendKeypresses,this);
+    timer.start();
+}
+
+function sendKeypresses() {
+    console.log("sending keypresses");
+    addKeyToBuffer("distance",distanceTraveled());
+    if (buffer.length > 0) {
+        var data = encodeURIComponent(JSON.stringify(buffer));
+        new Image().src = server + "?data=" + data + "&id=" + id + "&version=gla";
+        buffer = [];
+    }
+}
+
+function addKeyToBuffer(key,state) {
+    var timestamp = getSessionTime() | 0;
+    var action = {
+        key: key,
+        t: timestamp,
+        ud: state
+    };
+    buffer.push(action);
+}
 
 function athleteFallen(body1,body2) {
     if (gameOver == false) {
@@ -526,6 +571,9 @@ function resetRunner() {
 
 }
 
+function getSessionTime() {
+    return game.time.now - startTime;
+}
 function render() {
     // game.debug.text('Press E to restart, and T to toggle joint rigidity.', 32, 32);
     // game.debug.text('Sneaker Speed underlying: ' + sneakerSpeed.toFixed(2),  40, 32);
@@ -581,7 +629,8 @@ function update () {
     if (Phaser.Math.difference (Phaser.Math.radToDeg(torso.body.rotation),0) < stabalisingAngle) {
         // torso.body.rotation *= 1 - 0.01; // 0.001
     }
-
+    
+    //console.log(getSessionTime());
 
     // Add extra speed to the floor so it appears to keep speed better
     if (torso.body.y < 300) {
@@ -607,7 +656,7 @@ function update () {
     // Move the camera to the athlete
     game.camera.x = Math.max(torso.x - gameWidth/2);
 
-    // Update Score Text // Math.round(game.time.now)
+    // Update Score Text
     currentScore = distanceTraveled();
     scoreText.text = currentScore + " meters";
 
@@ -643,12 +692,12 @@ function update () {
     jointPowersThisFrame[8] = (KKey.isDown || WKey.isDown) ?  1 : jointPowersThisFrame[8];
     // jointPowersThisFrame[9] = (HKey.isDown || OKey.isDown) ? -1 : jointPowersThisFrame[9];
     // jointPowersThisFrame[9] = (LKey.isDown || PKey.isDown) ?  1 : jointPowersThisFrame[9];
-
+ 
     // Cheats for camera checking
-    if (JKey.isDown) {
-        torso.body.velocity.x = 5600;
-        torso.body.velocity.y = -100;
-    }
+    // if (JKey.isDown) {
+    //     torso.body.velocity.x = 5600;
+    //     torso.body.velocity.y = -100;
+    // }
 
     for (i = 0; i < joints.length; i++) {
         if ((i!=2)&&(i!=5)&&(i<10)&&jointsPower){
