@@ -22,6 +22,7 @@ function preload() {
     game.load.image('startLine', 'assets/QWOPStartLine.png');
     game.load.image('gameLost', 'assets/gameLost.png');
     game.load.image('gameWon', 'assets/gameWon.png');
+    game.load.image('introHelp', 'assets/introHelp.png');
 }
 
 
@@ -162,6 +163,7 @@ function create() {
     WKey.onUp.add(function(){addKeyToBuffer("w","u");});
     OKey.onUp.add(function(){addKeyToBuffer("o","u");});
     PKey.onUp.add(function(){addKeyToBuffer("p","u");});
+
     resetRunnerKey.onDown.add(function(){addKeyToBuffer("restart",distanceTraveled());});
 
     legHeightDistance = 0.4; //0.5
@@ -417,10 +419,12 @@ function create() {
     shoulderRight.lowerLimit = shoulderMinAngle;
     elbowRight.upperLimit = elbowMaxAngle;
     elbowRight.lowerLimit = elbowMinAngle;
+
+    create3();
 }
 
 function create2() {
-
+    
     while (id.length != 5) {
         id = prompt("Please enter your participant ID.","");
     }
@@ -439,10 +443,26 @@ function create2() {
     back.height = gameHeight-floorHeight;
     startTime = game.time.now;
 
+
     // Keylogging
     timer = game.time.create(false);
     timer.loop(500,sendKeypresses,this);
     timer.start();
+}
+
+function create3() {
+
+    introHelp = game.add.image(gameWidth/2,gameHeight/2, 'introHelp');
+    introHelp.fixedToCamera = true;
+    introHelp.anchor.set(0.5);
+    introHelp.height = gameHeight/2;
+    introHelp.width = introHelp.height/348*671;
+
+    introHelp.inputEnabled = true;
+    introHelp.events.onInputDown.add(removeIntroHelp, this);
+}
+function removeIntroHelp() {
+    introHelp.destroy();
 }
 
 function sendKeypresses() {
@@ -623,6 +643,8 @@ var jointsPower = true;
 sneakerHelpMax = 3.0;
 sneakerHelpMultiplier = 0.7;
 sneakerHelpHeightCutoff = 340;
+var cheatKeys = false
+
 function update () {
 
     // Help the athlete stay upright
@@ -675,29 +697,24 @@ function update () {
 
     // Power the muscles
     setAll(jointPowersThisFrame,0); // Hip knee ankle hip knee ankle
-    jointPowersThisFrame[0] = (SKey.isDown || WKey.isDown) ?  1 : jointPowersThisFrame[0];
-    jointPowersThisFrame[0] = (DKey.isDown || QKey.isDown) ? -1 : jointPowersThisFrame[0];
-    jointPowersThisFrame[1] = (AKey.isDown || PKey.isDown) ?  1 : jointPowersThisFrame[1];
-    jointPowersThisFrame[1] = (FKey.isDown || OKey.isDown) ? -1 : jointPowersThisFrame[1];
-    jointPowersThisFrame[3] = (JKey.isDown || QKey.isDown) ?  1 : jointPowersThisFrame[3];
-    jointPowersThisFrame[3] = (KKey.isDown || WKey.isDown) ? -1 : jointPowersThisFrame[3];
-    jointPowersThisFrame[4] = (HKey.isDown || OKey.isDown) ?  1 : jointPowersThisFrame[4];
-    jointPowersThisFrame[4] = (LKey.isDown || PKey.isDown) ? -1 : jointPowersThisFrame[4];
-
-    jointPowersThisFrame[6] = (SKey.isDown || WKey.isDown) ? -1 : jointPowersThisFrame[6];
-    jointPowersThisFrame[6] = (DKey.isDown || QKey.isDown) ?  1 : jointPowersThisFrame[6];
-    // jointPowersThisFrame[7] = (AKey.isDown || PKey.isDown) ? -1 : jointPowersThisFrame[7];
-    // jointPowersThisFrame[7] = (FKey.isDown || OKey.isDown) ?  1 : jointPowersThisFrame[7];
-    jointPowersThisFrame[8] = (JKey.isDown || QKey.isDown) ? -1 : jointPowersThisFrame[8];
-    jointPowersThisFrame[8] = (KKey.isDown || WKey.isDown) ?  1 : jointPowersThisFrame[8];
-    // jointPowersThisFrame[9] = (HKey.isDown || OKey.isDown) ? -1 : jointPowersThisFrame[9];
-    // jointPowersThisFrame[9] = (LKey.isDown || PKey.isDown) ?  1 : jointPowersThisFrame[9];
- 
+    jointPowersThisFrame[0] = ((SKey.isDown&&cheatKeys) || WKey.isDown) ?  1 : jointPowersThisFrame[0];
+    jointPowersThisFrame[0] = ((DKey.isDown&&cheatKeys) || QKey.isDown) ? -1 : jointPowersThisFrame[0];
+    jointPowersThisFrame[1] = ((AKey.isDown&&cheatKeys) || PKey.isDown) ?  1 : jointPowersThisFrame[1];
+    jointPowersThisFrame[1] = ((FKey.isDown&&cheatKeys) || OKey.isDown) ? -1 : jointPowersThisFrame[1];
+    jointPowersThisFrame[3] = ((JKey.isDown&&cheatKeys) || QKey.isDown) ?  1 : jointPowersThisFrame[3];
+    jointPowersThisFrame[3] = ((KKey.isDown&&cheatKeys) || WKey.isDown) ? -1 : jointPowersThisFrame[3];
+    jointPowersThisFrame[4] = ((HKey.isDown&&cheatKeys) || OKey.isDown) ?  1 : jointPowersThisFrame[4];
+    jointPowersThisFrame[4] = ((LKey.isDown&&cheatKeys) || PKey.isDown) ? -1 : jointPowersThisFrame[4];
+    jointPowersThisFrame[6] = ((SKey.isDown&&cheatKeys) || WKey.isDown) ? -1 : jointPowersThisFrame[6];
+    jointPowersThisFrame[6] = ((DKey.isDown&&cheatKeys) || QKey.isDown) ?  1 : jointPowersThisFrame[6];
+    jointPowersThisFrame[8] = ((JKey.isDown&&cheatKeys) || QKey.isDown) ? -1 : jointPowersThisFrame[8];
+    jointPowersThisFrame[8] = ((KKey.isDown&&cheatKeys) || WKey.isDown) ?  1 : jointPowersThisFrame[8];
+    
     // Cheats for camera checking
-    // if (JKey.isDown) {
-    //     torso.body.velocity.x = 5600;
-    //     torso.body.velocity.y = -100;
-    // }
+    if (JKey.isDown&&cheatKeys) {
+        torso.body.velocity.x = 5600;
+        torso.body.velocity.y = -100;
+    }
 
     for (i = 0; i < joints.length; i++) {
         if ((i!=2)&&(i!=5)&&(i<10)&&jointsPower){

@@ -46,7 +46,7 @@
 		console.log("starting script in data_collection.html");
 		window.onload = setupPage;
 		//document.onload = changeData();
-		var qwopPlayMinutes = 0.4;
+		var qwopPlayMinutes = 5;
 		var currentQwopDistanceTraveled = 0;
 		sessionStorage.clickcount = 1;
 
@@ -254,8 +254,8 @@
 				}, 500);
 				setFocusIframe();
 			},2000);
-		}
 		
+		}
 		function changeDataToBreak() {
 			// Thanks at end
 			// Text above the iframe
@@ -331,7 +331,11 @@
 			+"<br>";
 
 			// Item in iframe for this section
-			iframe.src="https://docs.google.com/forms/d/e/1FAIpQLSdZkZ07C2fZLBTDI8fqRgnaGzqou3OJqzMpm1z2o0bKo3scYg/viewform?embedded=true";
+			if (id>45000){
+				iframe.src="https://docs.google.com/forms/d/e/1FAIpQLSdZkZ07C2fZLBTDI8fqRgnaGzqou3OJqzMpm1z2o0bKo3scYg/viewform?embedded=true"; // Final Questionnaire
+			}
+			iframe.src="https://docs.google.com/forms/d/e/1FAIpQLSfq4T1s7mI68QsyHJ3OPnITsP_JGhEjfD6HO88_4H0dmWw85w/viewform?embedded=true" // Second Questionnaire
+
 			iframe.maxWidth = 960;
 			iframe.width = "100%";
 			iframe.height="540";

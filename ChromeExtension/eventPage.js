@@ -33,7 +33,7 @@ function updateScreenshot(gameTabId) {
 
      // script += 'console.log(document.getElementById("timer").getSessionTime);';
      // script += 'console.log(String.toInt(document.getElementById("timer").getSessionTime()) % 1000);';
-     //script += 'console.log("");';
+     //script += 'console.log("hmmmmmm");';
 
      // Put the image into the img element
      script += 'img_element = document.getElementById("screenshot_target");';
