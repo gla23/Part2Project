@@ -40,7 +40,7 @@ function updateScreenshot(gameTabId) {
      script += 'img_element.src = "'+image+'";';
      //script += 'img_element.height = 0;';
      script += 'document.getElementById("ocr2").innerHTML = "";';
-     script += 'document.getElementById("next_button").style.visibility = "visible";';
+     //script += 'document.getElementById("next_button").style.visibility = "visible";';
 
      // Draw the image onto the larger canvas
      script += 'img_element.onload = function() {';

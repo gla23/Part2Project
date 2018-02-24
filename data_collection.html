@@ -24,15 +24,15 @@
 	<!-- iframe used in each secction - holds google form or a qwop game -->
 	<iframe id = "iframe" name = "iframe">Loading...</iframe>
 	<br>
-	<br>
+	<p id="pForID"></p>
 
-	<p><button onclick="increaseCounter()" type="button" id="next_button" style="visibility:hidden">Next</button></p>
+	<p><button onclick="increaseCounter()" type="button" id="next_button">Next</button></p>
 	
 	<p id ="timer" style="visibility: hidden"></p>
 
 	<div id="ocr" style="visibility:hidden">use extension</div>
 	<!-- <div id="ocr">use extension</div> -->
-	<div id="ocr2">Please use extension: click the Data collection extension icon in the top right of chrome.</div>
+	<div id="ocr2"><b>Please use the data extension before clicking next!</b> click the Data collection extension icon in the top right of chrome.</div>
 	<canvas id="smaller_canvas" src="white.png" width="130" height="40" style="visibility:hidden"> </canvas>
 	<!-- style="border:1px solid #d3d3d3" -->
 	<img id="screenshot_target" height="0">
@@ -51,6 +51,7 @@
 		sessionStorage.clickcount = 1;
 
 		var id = Math.floor(Math.random() * (99999-10000))+10000;
+		document.getElementById("pForID").innerHTML = "<p>participant ID: <b>"+id+"</b></p>";
 		iframe = document.getElementById("iframe");
 		text = document.getElementById("text");
 		timer = document.getElementById("timer");
@@ -279,7 +280,7 @@
 			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/6 </h1>"
 			+"<p>participant ID: <b>"+id+"</b></p>"
 			+"<br>"
-			+"<p>Now please play this game for "+qwopPlayMinutes+" mins.</p>"
+			+"<p>Please play this game for "+qwopPlayMinutes+" mins.</p>"
 			+"<p>Again this bit will move automatically move on to the next section when the time is up, but press next to see other bits.</p>"
 			+"<br>";
 			// Item in iframe for this section

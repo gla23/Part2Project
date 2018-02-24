@@ -425,7 +425,7 @@ function create() {
 
 function create2() {
     
-    while (id.length != 5) {
+    while ((id==null)||(id.length != 5)) { 
         id = prompt("Please enter your participant ID.","");
     }
 
