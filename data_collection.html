@@ -85,6 +85,7 @@
 			} else {
 				document.getElementById("text").innerHTML = "Sorry, your browser does not support web storage...";
 			}
+			document.getElementById("ocr2").style.visibility = "hidden";
 			changeData();
 		}
 		function setupPage() {
@@ -137,9 +138,8 @@
 			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/6 </h1>"
 			+"<p>participant ID: <b>"+id+"</b></p>"
 			+"<br>"
-			+"<p>Next up play this game of qwop for for "+qwopPlayMinutes+" mins, aim to get as high a score as possible.</p>"
-			+"<br>"
-			+"<p>then your time will start.</p>"
+			+"<p>Next up play this game of QWOP for "+qwopPlayMinutes+" mins, aim to get as high a score as possible.</p>"
+			+"<p>This section will automatically move on to the next section when your time is up.</p>"
 			+"<br>";
 		
 			// Item in iframe for this section
@@ -265,7 +265,7 @@
 			+"<p>participant ID: <b>"+id+"</b></p>"
 			+"<br>"
 			+"<p>Your "+qwopPlayMinutes+" minutes are up!</p>"
-			+"<p>In the next section there will be another version of the game, with the same time limit. Enjoy the game (if possible) and maximise your score. Press the next button to continue.</p>"
+			+"<p>In the next section there will be another version of the game, with the same time limit. Click next when you are ready.</p>"
 			+"<br>";
 			// Remove iframe and next button
 			timer.style.visibility = "hidden";
@@ -280,8 +280,8 @@
 			"<h1>Data collection for Part II Project - section " + sessionStorage.clickcount + "/6 </h1>"
 			+"<p>participant ID: <b>"+id+"</b></p>"
 			+"<br>"
-			+"<p>Please play this game for "+qwopPlayMinutes+" mins.</p>"
-			+"<p>Again this bit will move automatically move on to the next section when the time is up, but press next to see other bits.</p>"
+			+"<p>Please play this game of QWOP for "+qwopPlayMinutes+" minutes. Enjoy the game (if possible) and maximise your score.</p>"
+			+"<p>This section will automatically move on to the next section when your time is up.</p>"
 			+"<br>";
 			// Item in iframe for this section
 			iframe.src="https://rawgit.com/gla23/Part2Project/master/myQWOPjs.html";
@@ -328,7 +328,7 @@
 			+"<p>Time up!</p>"
 			+"<br>"
 			+"<p>Now that you have played the games, please complete this final questionnaire. </p>"
-			+"<p>When you have submitted your answers, click the next below.</p>"
+			+"<p>When you have submitted your answers, click the next button below.</p>"
 			+"<br>";
 
 			// Item in iframe for this section
@@ -361,6 +361,7 @@
 			iframe.parentNode.removeChild(iframe);
 			next_button.parentNode.removeChild(next_button);
 			timer.parentNode.removeChild(timer);
+			document.getElementById("pForID").innerHTML = "";
 		}
 		
 
