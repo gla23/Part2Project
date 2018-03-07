@@ -1,12 +1,51 @@
 
-//"use strict";
+function addData(folder, participantID, gameType) {
+    // Get contentsData from server
+    var req = new XMLHttpRequest();
+    req.onload = function(){
+        workWithFile(this.responseText,participantID,gameType);
+    };
+    //req.open('GET', './Keylogs25-02/95276fod.txt');
+    req.open('GET', './Keylogs'+ folder + '/'+participantID+gameType+'.txt');
+    req.send();
+}
 
-var allDistances = [];
-var allRestarts = [];
-var allKeys = [];
 
-function workWithFile(contents,dataFile) {
-    console.log("running workWithFile");
+// load in collected data 
+participantsData = [
+    ["02-25","37185"],["02-25","38026"],["02-25","42179"],["02-25","49775"],["02-25","62842"],["02-25","95276"],
+    ["02-28","13314"],//["02-28","27927"],["02-28","60931"],["02-28","93349"]
+    ["03-05","11122"],["03-05","94392"]
+    ];
+
+console.log(participantsData);
+for(x in participantsData){
+    addData(participantsData[x][0],participantsData[x][1],"gla");
+    addData(participantsData[x][0],participantsData[x][1],"fod");
+}
+
+// ["12345","gla",restartDistances,restartTimes,distances,distanceTimes,keys]
+var allData = [];
+console.log("allData:");
+console.log(allData);
+
+var allGlaDistances = [];
+var allFodDistances = [];
+
+// Make array to see datasets clearly
+allRestarts = [];
+console.log("Restarts: ");
+console.log(allRestarts);
+allDistances = [];
+console.log("Distances: ");
+console.log(allDistances);
+// console.log("Distances: ");
+// console.log(allDistances);
+// console.log("Keys: ");
+// console.log(allKeys);
+
+function workWithFile(contents,participantID,gameType) {
+    //console.log("running workWithFile");
     //console.log(contents);
     
     function myPop() {
@@ -18,14 +57,14 @@ function workWithFile(contents,dataFile) {
         return popped;
     }
 
+    // Initialise variables
     var contentsData = contents;
-
     var a = "";
 
-    var distances = [];
-    var distanceTimes = [];
     var restartDistances = [];
     var restartTimes = [];
+    var distanceDistances = [];
+    var distanceTimes = [];
     var keys = [];
 
 
@@ -36,8 +75,10 @@ function workWithFile(contents,dataFile) {
         } else {
             messages = JSON.parse("["+a+"]");
             for (x in messages){
+                // For each message in the buffer chunk
                 //console.log(messages[x]);
                 values = Object.values(messages[x]);
+
                 // Don't bother with data accidentally got after time is up.
                 if (values[1]>300000){
                     console.log("contentsData after game is finished: "+values[1]);
@@ -46,7 +87,7 @@ function workWithFile(contents,dataFile) {
 
                 if (values[0]=="distance"){
                     distanceTimes.push(values[1]);
-                    distances.push(values[2]);
+                    distanceDistances.push(values[2]);
                 } else if (values[0]=="restart"){
                     restartTimes.push(values[1]);
                     restartDistances.push(values[2]);
@@ -57,88 +98,92 @@ function workWithFile(contents,dataFile) {
         } 
     }
     // add final distance to the list of end distances
-    restartDistances.push(distances[distances.length-1]);
+    restartDistances.push(distanceDistances[distanceDistances.length-1]);
     restartTimes.push(distanceTimes[distanceTimes.length-1]);
 
+    // Add all the data of the participant into the array of participants
+    allData.push([participantID,gameType,restartDistances,restartTimes,distanceDistances,distanceTimes,keys]);
+    allRestarts.push(restartDistances);
+    allDistances.push(distanceDistances);
 
-    allDistances.push([dataFile,distanceTimes,distances]);
-    allRestarts.push([dataFile,restartTimes,restartDistances]);
-    allKeys.push([dataFile,keys]);
+    // ["12345","gla",restartDistances,restartTimes,distances,distanceTimes,keys]
+    // After all data has been input do other calculations
+    if(allDistances.length == 2*participantsData.length){
+        console.log("da;lfd")
 
+        // Work out other stuff
+        for(x in allData) {
+            for(y in allData[x][2])
+            if (allData[x][1] == "gla"){
+                allGlaDistances.push(allData[x][2][y]);
+            } else {
+                allFodDistances.push(allData[x][2][y]);
+            }
+        }
+        console.log(allFodDistances);
+        console.log(allGlaDistances);
 
-    //document.getElementById("1").innerHTML = 
+        // Add some extra graphs
+
+        makeGraph(1300,800,[-4,90],1,"fish","2");
+        makeGraph(1300,800,[-4,40],1,"fish","3");
+    }
 }
-function addData(dataFile) {
-    // Get contentsData from server
-    var req = new XMLHttpRequest();
-    req.onload = function(){
-        workWithFile(this.responseText,dataFile);
-    };
-    //req.open('GET', './Keylogs25-02/95276fod.txt');
-    req.open('GET', './Keylogs25-02/'+dataFile+'.txt');
-    req.send();
-}
-
-addData("37185fod");
-addData("37185gla");
-addData("38026gla");
-addData("38026fod");
-addData("42179gla");
-addData("42179fod");
-addData("49775gla");
-addData("49775fod");
-addData("62842gla");
-addData("62842fod");
-addData("95276gla");
-addData("95276fod");
-
-
-console.log("Distances: ");
-console.log(allDistances);
-console.log("Restarts: ");
-console.log(allRestarts);
-console.log("Keys: ");
-console.log(allKeys);
-
-
 window.onload = function() {
     console.log("running onload");
-    setTimeout(makeGraph("svg1",[-5,15]), 900);
-    setTimeout(makeGraph("svg2",[-5,25]), 900);
-    setTimeout(makeGraph("svg3",[-5,35]), 900);
-
-    setTimeout(function(){
-        console.log("now doing delayed section 2");
-        d3.selectAll("svg").on("click", function() {
-          d3.select(this).style("color", "red");
-        });
-    },1000);
-    
-    // document.getElementById("1").innerHTML = "5";
-    // document.getElementById("2").innerHTML = cat;
-
-    // First attempt to get file
-    // function readSingleFile(e) {
-    //   var file = e.target.files[0];
-    //   if (!file) {
-    //     return;
-    //   }
-    //   var reader = new FileReader();
-    //   reader.onload = function(e) {
-    //     var contents = e.target.result;
-    //     workWithFile(contents);
-    //   };
-    //   reader.readAsText(file);
-    // }
-    // document.getElementById('file-input').addEventListener('change', readSingleFile, false);
-
+    for (var i = 0; i < participantsData.length ; i++) {
+        makeGraph(900,400,[-4,90],1,2*i,"1");
+        makeGraph(900,400,[-4,40],1,2*i+1,"1");
+    }
 };
 
-function makeGraph(element,graphDomain) {
-    console.log("starting makeGraph")
-    var data = d3.range(1000).map(d3.randomBates(10));
-    data = allRestarts[0][2];
-    console.log(data);
+
+function makeGraph(graphWidth,graphHeight,graphDomain,binSize,dataSet,type) {
+    var svgGraph = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    // Create title of graph
+    var graphTitleElement = document.createElement("B");
+    var newDiv = document.createElement("div");
+    newDiv.style.display = "inline-block";
+    setTimeout(function(){
+        if (type=="1"){
+            graphTitleElement.innerHTML = "participant " + allData[dataSet][0] + " playing version " + allData[dataSet][1];
+        }
+        if (type=="2"){
+            graphTitleElement.innerHTML = "Total over all games of my version";
+        }
+        if (type=="3"){
+            graphTitleElement.innerHTML = "Total over all games of the original QWOP";
+        }
+        newDiv.appendChild(graphTitleElement);
+        newDiv.appendChild(document.createElement("br"));
+        newDiv.appendChild(svgGraph);
+    }, 1000);
+    
+    document.getElementById("graphsRoot").appendChild(newDiv);
+    //document.getElementById("graphsRoot").appendChild(graphTitleElement);
+    svgGraph.setAttribute("width",""+graphWidth);
+    svgGraph.setAttribute("height",""+graphHeight);
+    svgGraph.id = "svg"+Math.floor(Math.random() * (99999-10000))+10000;
+    //console.log(svgGraph);
+    setTimeout(function(){makeHistogram(svgGraph.id,graphDomain,binSize,dataSet,type)}, 1000);
+}
+
+// ["12345","gla",restartDistances,restartTimes,distances,distanceTimes,keys]
+
+function makeHistogram(element,graphDomain,binSize,dataSet,type) {
+    //console.log("starting makeHistogram")
+    var data; // = d3.range(1000).map(d3.randomBates(10));
+    if (type==1) {
+        data = allData[dataSet][2]
+    }
+    if (type==2) {
+        data = allGlaDistances;
+    }
+    if (type==3) {
+        data = allFodDistances;
+    }
+
+    //console.log(data);
 
     var formatCount = d3.format(",.0f");
 
@@ -150,32 +195,39 @@ function makeGraph(element,graphDomain) {
 
     var x = d3.scaleLinear()
         .domain(graphDomain) // Set domain here
-        .rangeRound([0, width]);
+        .rangeRound([0, width]); // Size of x-axis
+
+    binArray = [];
+    for (var i = graphDomain[0]; i < graphDomain[1]; i+=binSize) {
+        binArray.push(i);
+    }
 
     var bins = d3.histogram()
         .domain(x.domain())
-        .thresholds(x.ticks(20))
+        .thresholds(x.ticks((graphDomain[1]-graphDomain[0])/binSize)) // Array of bin areas
+        .thresholds(binArray) // Array of bin areas
         (data);
 
     var y = d3.scaleLinear()
-        .domain([0, d3.max(bins, function(d) { return d.length; })])
-        .range([height, 0]);
+        .domain([0, d3.max(bins, function(d) { return d.length; })]) // yscaling
+        .range([height, 0]); // Not sure
 
     var bar = g.selectAll(".bar")
       .data(bins)
       .enter().append("g")
         .attr("class", "bar")
-        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; }); // Moves bars into correct place
 
     bar.append("rect")
-        .attr("x", 1)
-        .attr("width", x(bins[0].x1) - x(bins[0].x0) - 1)
+        .attr("x", 0)
+        //.attr("width", x(bins[0].x1) - x(bins[0].x0) - 1) // Width of bar
+        .attr("width", x(bins[2].x0) - x(bins[1].x0) - 1) // Width of bar
         .attr("height", function(d) { return height - y(d.length); });
 
     bar.append("text")
         .attr("dy", ".75em")
         .attr("y", 6)
-        .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
+        .attr("x", (x(bins[2].x0) - x(bins[1].x0)) / 2)
         .attr("text-anchor", "middle")
         .text(function(d) { return formatCount(d.length); });
 
