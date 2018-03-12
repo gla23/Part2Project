@@ -15,30 +15,36 @@ function addData(folder, participantID, gameType) {
 participantsData = [
     ["02-25","37185"],["02-25","38026"],["02-25","42179"],["02-25","49775"],["02-25","62842"],["02-25","95276"],
     ["02-28","13314"],//["02-28","27927"],["02-28","60931"],["02-28","93349"]
-    ["03-05","11122"],["03-05","94392"]
+    ["03-05","11122"],["03-05","94392"],
+    ["03-09","65984"],["03-09","73684"],["03-09","11463"],["03-09","20353"],["03-09","80390"],["03-09","32257"],
+    ["03-11","81898"],["03-11","31323"],["03-11","52998"]
     ];
 
-console.log(participantsData);
+// ["12345","gla",restartDistances,restartTimes,distances,distanceTimes,keys]
+var allData = Array(participantsData.length*2);
+var allGlaRestartDistances = [];
+var allFodRestartDistances = [];
+allData.number_added = 0;
+
+
 for(x in participantsData){
     addData(participantsData[x][0],participantsData[x][1],"gla");
     addData(participantsData[x][0],participantsData[x][1],"fod");
 }
 
-// ["12345","gla",restartDistances,restartTimes,distances,distanceTimes,keys]
-var allData = [];
+console.log("participantsData:");
+console.log(participantsData);
 console.log("allData:");
 console.log(allData);
 
-var allGlaDistances = [];
-var allFodDistances = [];
-
 // Make array to see datasets clearly
 allRestarts = [];
-console.log("Restarts: ");
-console.log(allRestarts);
+// console.log("Restarts: ");
+// console.log(allRestarts);
 allDistances = [];
-console.log("Distances: ");
-console.log(allDistances);
+// console.log("Distances: ");
+// console.log(allDistances);
+
 // console.log("Distances: ");
 // console.log(allDistances);
 // console.log("Keys: ");
@@ -101,32 +107,43 @@ function workWithFile(contents,participantID,gameType) {
     restartDistances.push(distanceDistances[distanceDistances.length-1]);
     restartTimes.push(distanceTimes[distanceTimes.length-1]);
 
-    // Add all the data of the participant into the array of participants
-    allData.push([participantID,gameType,restartDistances,restartTimes,distanceDistances,distanceTimes,keys]);
+    // Add all the data of the participant into the array of participants (in the right order)
+    // find correct position in the array
+    for (var i = 0; i < participantsData.length; i++) {
+        if (participantsData[i][1]==participantID) {
+            posToInsert = 2*i;
+            if (gameType=="fod")
+            {
+                posToInsert += 1;
+            }
+            //console.log("position: "+posToInsert+" : "+participantID)
+            allData[posToInsert] = [participantID,gameType,restartDistances,restartTimes,distanceDistances,distanceTimes,keys];
+        }
+    }
+
     allRestarts.push(restartDistances);
     allDistances.push(distanceDistances);
 
     // ["12345","gla",restartDistances,restartTimes,distances,distanceTimes,keys]
     // After all data has been input do other calculations
     if(allDistances.length == 2*participantsData.length){
-        console.log("da;lfd")
+        console.log("starting other calculations once all the data has been received.")
 
         // Work out other stuff
         for(x in allData) {
             for(y in allData[x][2])
             if (allData[x][1] == "gla"){
-                allGlaDistances.push(allData[x][2][y]);
+                allGlaRestartDistances.push(allData[x][2][y]);
             } else {
-                allFodDistances.push(allData[x][2][y]);
+                allFodRestartDistances.push(allData[x][2][y]);
             }
         }
-        console.log(allFodDistances);
-        console.log(allGlaDistances);
+        console.log(allFodRestartDistances);
+        console.log(allGlaRestartDistances);
 
         // Add some extra graphs
-
         makeGraph(1300,800,[-4,90],1,"fish","2");
-        makeGraph(1300,800,[-4,40],1,"fish","3");
+        makeGraph(1300,800,[-4,90],1,"fish","3");
     }
 }
 window.onload = function() {
@@ -177,10 +194,10 @@ function makeHistogram(element,graphDomain,binSize,dataSet,type) {
         data = allData[dataSet][2]
     }
     if (type==2) {
-        data = allGlaDistances;
+        data = allGlaRestartDistances;
     }
     if (type==3) {
-        data = allFodDistances;
+        data = allFodRestartDistances;
     }
 
     //console.log(data);

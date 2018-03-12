@@ -42,6 +42,7 @@ function updateScreenshot(gameTabId) {
      script += 'document.getElementById("ocr2").innerHTML = "";';
      //script += 'document.getElementById("next_button").style.visibility = "visible";';
 
+
      // Draw the image onto the larger canvas
      script += 'img_element.onload = function() {';
        script += 'canvas_element = document.getElementById("screenshot_canvas");';
@@ -49,7 +50,7 @@ function updateScreenshot(gameTabId) {
        script += 'ctx.drawImage(img_element,0,0);';
   	   // Get the distance text and invert
        script += 'rect = document.getElementById("iframe").getBoundingClientRect();';
-       script += 'var imageData = ctx.getImageData(rect.x+215, rect.y+20, 130, 40);';
+       script += 'var imageData = ctx.getImageData(rect.x+265, rect.y+38, 130, 40);';
        script += 'var data = imageData.data;';
        script += 'for(var i = 0; i < data.length; i += 4) {';
          // red, green then blue
