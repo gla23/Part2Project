@@ -4,14 +4,19 @@
 	<meta charset="UTF-8" />
 	<title>JavaScript tester</title>
 	<link rel="stylesheet" href="style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
     <style type="text/css">
 	    .bar rect {
 	      fill: steelblue;
-	    }
 
+	    }
+	    .tick text {
+	    	font: 12px sans-serif;
+	    }
 	    .bar text {
-	      fill: #fff;
-	      font: 10px sans-serif;
+	      fill: #222;
+	      font: 12px sans-serif;
 	    }
         body {
             margin: 0;
@@ -19,23 +24,18 @@
     </style>
 </head>
 <body>
-<h1>Graphs<br></h1>
+
+<h1 id="title">Data analysis graphs<br></h1>
+
+<h2>Line graphs showing distances reached</h2>
+<p id = "lineGraphRoot"></p>
+<h2>Graphs for analysing effect of changing the version, order of play, and participant groups</h2>
 <p id = graphsRoot></p>
+<h2>Graphs for individual participants</h2>
+<p id = graphsRootIndividual></p>
 
-
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<br>
 <script type="text/javascript" src="keylogAnalysis.js"></script>
 
-
-
-<br>
-<br>
-<p id="1"></p>
-<p id="2"></p>
-<p id="3"></p>
-<p id="4"></p>
-<p id="5"></p>
-<br>
-<br>
 </body>
 </html>
