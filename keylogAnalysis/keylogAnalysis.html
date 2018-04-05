@@ -6,9 +6,10 @@
 	<link rel="stylesheet" href="style.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="jquery.csv.min.js"></script>
     <style type="text/css">
 	    .bar rect {
-	      fill: steelblue;
+	      /*fill: steelblue;*/
 
 	    }
 	    .tick text {
@@ -26,12 +27,13 @@
 <body>
 
 <h1 id="title">Data analysis graphs<br></h1>
-
-<h2>Line graphs showing distances reached</h2>
+<h2>Others</h2>
+<p id = "others"></p>
+<h2>Line graphs showing distances reached over time</h2>
 <p id = "lineGraphRoot"></p>
 <h2>Graphs for analysing effect of changing the version, order of play, and participant groups</h2>
 <p id = graphsRoot></p>
-<h2>Graphs for individual participants</h2>
+<h2>Graphs of distances reached for individual participants</h2>
 <p id = graphsRootIndividual></p>
 
 <br>
