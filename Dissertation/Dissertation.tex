@@ -6,6 +6,9 @@
 \usepackage{graphicx}  % allows inclusion of PDF, PNG and JPG images
 \usepackage{verbatim}
 \usepackage{docmute}   % only needed to allow inclusion of proposal.tex
+\usepackage{array}     % for tables
+\usepackage{nameref}
+
 
 \graphicspath{ {Images/} }
 \raggedbottom                           % try to avoid widows and orphans
@@ -49,21 +52,69 @@ Robinson College \\[5mm]
 % \leftline{Date \today}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Introduction (intro+prep ~3000)
-% \chapter{Introduction}
-% \section{section 1}
-% introduction
+% Introduction (intro+prep ~3000)
+\chapter{Introduction}
+\section{What is QWOP?}
+As described in the project proposal, my project is to recreate QWOP using JavaScript.
+QWOP is a browser video game created by Bennett Foddy. The goal of the player is to complete a 100m race without falling over.
+Figure \ref{startScreen} shows the screen on game start.
+% fig of starting screen
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.7\textwidth]{startScreen.PNG}
+	\caption{Starting screen of QWOP}
+	\label{startScreen}
+\end{figure}
+Players control the athlete using only the Q, W, O, and P keys. 
+Whilst the Q key is held down, the runner's right thigh is driven forward and his left thigh is driven backward. This moves the legs apart at the bottom of the torso in a scissor-like motion. 
+The W key does the opposite of this, and holding it down will put the athlete in a similar stance but with his outstretched legs reversed.
+The O and P keys have a similar effect but instead power the movement of the calves. The O key applies a force that moves the left calf towards the back, and the right calf forwards until it is in line with the thigh. Again the P key is the reverse of this.
+
+Once the player clicks on the screen they are free to press the keys to attempt to move forwards. This invariably leads to Figure \ref{fallen} which shows the athlete fallen over. 
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.7\textwidth]{qwopFallen.PNG}
+	\caption{The athlete has fallen over so the player must restart.}
+	\label{fallen}
+\end{figure}
+Below the athlete there is an X symbol. This shows where the athlete first touched the floor with his arms or head. These section of his body are not allowed to touch the floor as doing so counts as falling over. After this the player can press space and start again.
+Most players attempt to keep the athlete upright and work out a key combination that will move the athlete in a motion as close to a normal gait as possible.
+Others however manoeuvre the runner into a stable position on the floor, and then press lots of keys in the hope that there is a net movement forward.
+Both these methods are entertaining and give some success.
+Though the objective of QWOP is simple, it has been notorious for being difficult to master ever since it went viral in 2010.
+
 
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Preparation (intro+prep ~3000)
-% \chapter{Preparation}
-% \section{section 1}
-% Preparation
+% Preparation (intro+prep ~3000)
+\chapter{Preparation}
+\section{section 1}
 
-% In this chapter, I have discussed the theory that had to be understood, and work that
-% had to be done, before implementation could begin
+In this chapter I will discuss the preparation 
+
+alan physics model
+	mathematical model of QWOP
+or 
+how you model the runner
+
+\section{Mathematical model of QWOP}
+\label{mathModel}
+To create a representation of an athlete in physics it first helps to know how it is going to be modelled. So when preparing it was important to first design a mathematical model of an athlete that could later be instantiated during the implementation.
+
+The first thing that I did to prepare was to get going with Phaser
+phaser is...
+	objects sprites
+	control flow/code sections
+		pseudo code?
+
+Next I learnt how to do these thingys
+stuff in course
+	stats test
+	open coding?
+
+In this chapter, I have discussed the theory that had to be understood, and work that
+had to be done, before implementation could begin
 
 
 
@@ -71,103 +122,103 @@ Robinson College \\[5mm]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation ~4500
 \chapter{Implementation}
+todo: fix thish
+This section explains how the mathematical model of QWOP (explained in the Prep section) was implemented along with the evaluation scaffolding used during the user study.  Section \ref{sec:qwopImp} focuses on the implementation of QWOP (and perhaps explain what other subsections do). Section 3.2 (or 3.N if you've added more subsections to improve structure) explains the code written to produce and analyse the results of the user study.
 
 This chapter describes the implementation of the project, moving on from preparation in previous chapters. The main implementation tasks in the project were writing my version of QWOP, and writing the set of software used to perform the user study and evaluate the project. These can be divided as follows:
 
-\begin{enumerate}
-  \item Phaser Implementation of QWOP
-	\begin{enumerate}
-      \item Modelling joints in physics
-  	  \item Modelling the athlete
-  	  \item Graphics
-  	  \item Game flow
-	\end{enumerate}
-  \item Evaluation software
-    \begin{enumerate}
-      \item Web page hosting user study
-      \item Server software to receive and store user study data
-      \item Chrome extension for reading distance from QWOP
-    \end{enumerate}
-\end{enumerate}
+\begin{itemize}
+  \item Section \ref{sec:qwopImp} \nameref{sec:qwopImp}
+	\begin{itemize}
+      \item Section \ref{sec:jointsInPhysics} \nameref{sec:jointsInPhysics}
+  	  \item Section \ref{sec:athleteModel} \nameref{sec:athleteModel}
+  	  \item Section \ref{sec:graphics} \nameref{sec:graphics}
+  	  \item Section \ref{sec:gameFlow} \nameref{sec:gameFlow}
+	\end{itemize}
+  \item Section \ref{sec:evalSoftware} \nameref{sec:evalSoftware}
+   \begin{itemize}
+      \item Section \ref{sec:webPage} \nameref{sec:webPage}
+      \item Section \ref{sec:serverSoftware} \nameref{sec:serverSoftware}
+      \item Section \ref{sec:chromeExtension} \nameref{sec:chromeExtension}
+    \end{itemize}
+\end{itemize}
 
 \section{Phaser Implementation of QWOP}
-
+\label{sec:qwopImp}
 Phaser is a JavaScript framework designed for making games. I have described how it works in the preparation section, and will now break down how it was used to make the different sections of the game.
 
 
+\subsection{Modelling joints in physics }
+\label{sec:jointsInPhysics}
+The first hurdle was to work out how to create a body in Phaser's physics engine.   
+\ref{swingingRods} shows my first prototype for modelling joints and limbs, each rod is a sprite, and the joints between them are fixed together by Phaser's 'revoluteContraint's. This allows them to swing freely.
+
+\begin{figure}[tbh]
+\centerline{\includegraphics[scale=0.5]{swingingRods.PNG}}
+\caption{Swinging rods initial model of limbs}
+\label{swingingRods}
+\end{figure}
+
+The next step was make the joints apply forces to each other. This would be used to not only move the limbs when the user presses the keys, but also provide forces so that the body would stay in a similar position when keys are not pressed.
+
+The way I did this was to use Phaser's motors on the joints. These work by applying the force needed to move the joint at the specified speed, capped off at a max value. This way of powering joints could also be used easily to apply the static forces by setting the speed to 0.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Older versions
+
+% https://cdn.rawgit.com/gla23/Part2Project/b43f453d1597b3f8080149ee5ca01760d64828dc/QWOPjs.html
+% swinging rods
+
+% https://cdn.rawgit.com/gla23/Part2Project/2b6292ed7cc0cb4994fea7af4697a1c1091b484d/QWOPjs.html
+% 1 leg 
+
+% https://cdn.rawgit.com/gla23/Part2Project/90935e3f9d1c2ff3d96cb271449743c98e651588/QWOPjs.html
+% body without graphics
+
+%https://cdn.rawgit.com/gla23/Part2Project/a76f298dcf66717188357c85e1b0b7667cea8e46/myQWOPjs.html
+% with graphics
+
+\subsection{Modelling the athlete}
+\label{sec:athleteModel}
+To model the athlete from these sprite joints, I specified the dimensions, mass, offset and starting rotation of each limb. Then forward kinematics is used on this data to get the starting points of the limbs. The limbs are then instantiated in these starting positions with the correct mass, dimensions and 'revoluteConstraint' joints. 
+These joints are given joint limits so that each limb has a realistic range of motion, for example the knee joint doesn't let your lower leg rotate all the way round.
+The motors for these joints are then attached to the user input according to the control scheme. If a key is pressed that powers the limb, the motor is set to the limb power, otherwise it is set to 0 so that the static forces apply.
+
+Each limb is given a group so that materials 
+either part of the  or  group, that 
+
+\begin{figure}[tbh]
+\centerline{\includegraphics[scale=0.5]{athleteModel.PNG}}
+\caption{Model of athlete}
+\label{athleteModel}
+\end{figure}
+
+\subsection{Graphics}
+\label{sec:graphics}
+Next the graphics were added to the model so that it looked similar to the original QWOP.
+Each sprite was given an image taken from the original.
+
+\begin{figure}[tbh]
+\centerline{\includegraphics[scale=0.4]{Images/modelWithGraphics.PNG}}
+\caption{model with graphics added}
+\label{modelWithGraphics}
+\end{figure}
+
+\subsection{Game flow}
+\label{sec:gameFlow}
+Finally all the other components of the game were added:
+
 \begin{enumerate}
-	\item Modelling joints in physics
-
-	The first hurdle was to work out how to create a body in Phaser's physics engine.   
-	\ref{swingingRods} shows my first prototype for modelling joints and limbs, each rod is a sprite, and the joints between them are fixed together by Phaser's 'revoluteContraint's. This allows them to swing freely.
-
-	\begin{figure}[tbh]
-	\centerline{\includegraphics[scale=0.5]{swingingRods.PNG}}
-	\caption{Swinging rods initial model of limbs}
-	\label{swingingRods}
-	\end{figure}
-
-	The next step was make the joints apply forces to each other. This would be used to not only move the limbs when the user presses the keys, but also provide forces so that the body would stay in a similar position when keys are not pressed.
-
-	The way I did this was to use Phaser's motors on the joints. These work by applying the force needed to move the joint at the specified speed, capped off at a max value. This way of powering joints could also be used easily to apply the static forces by setting the speed to 0.
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Older versions
-
-	% https://cdn.rawgit.com/gla23/Part2Project/b43f453d1597b3f8080149ee5ca01760d64828dc/QWOPjs.html
-	% swinging rods
-
-	% https://cdn.rawgit.com/gla23/Part2Project/2b6292ed7cc0cb4994fea7af4697a1c1091b484d/QWOPjs.html
-	% 1 leg 
-	
-	% https://cdn.rawgit.com/gla23/Part2Project/90935e3f9d1c2ff3d96cb271449743c98e651588/QWOPjs.html
-	% body without graphics
-
-	%https://cdn.rawgit.com/gla23/Part2Project/a76f298dcf66717188357c85e1b0b7667cea8e46/myQWOPjs.html
-	% with graphics
-
-	\item Modelling the athlete
-
-	To model the athlete from these sprite joints, I specified the dimensions, mass, offset and starting rotation of each limb. Then forward kinematics is used on this data to get the starting points of the limbs. The limbs are then instantiated in these starting positions with the correct mass, dimensions and 'revoluteConstraint' joints. 
-	These joints are given joint limits so that each limb has a realistic range of motion, for example the knee joint doesn't let your lower leg rotate all the way round.
-	The motors for these joints are then attached to the user input according to the control scheme. If a key is pressed that powers the limb, the motor is set to the limb power, otherwise it is set to 0 so that the static forces apply.
-
-	Each limb is given a group so that materials 
-	either part of the  or  group, that 
-	
-	\begin{figure}[tbh]
-	\centerline{\includegraphics[scale=0.5]{athleteModel.PNG}}
-	\caption{model of athlete}
-	\label{athleteModel}
-	\end{figure}
-
-	\item Graphics
-
-	Next the graphics were added to the model so that it looked similar to the original QWOP.
-	Each sprite was given an image taken from the original.
-
-	\begin{figure}[tbh]
-	\centerline{\includegraphics[scale=0.4]{Images/modelWithGraphics.PNG}}
-	\caption{model with graphics added}
-	\label{modelWithGraphics}
-	\end{figure}
-
-	\item Game flow
-
-	Finally all the other components of the game were added:
-
-	\begin{enumerate}
-		\item Collisions with the floor - Each limb that cannot touch the floor is put into a collision group. This group is used to check whether a collision with the floor occurs, and if so end the game.
-		\item Calculation of distance reached so far - a function of the x value of the athletes torso
-		\item Text showing the distance reached on the screen.
-		\item Recording the high score and displaying it on the screen
-		\item A User help box shown on game start-up
-		\item Checking whether the user has reached the end of the 100m and displaying the congratulations message if the player gets to 100m
-	\end{enumerate}
+	\item Collisions with the floor - Each limb that cannot touch the floor is put into a collision group. This group is used to check whether a collision with the floor occurs, and if so end the game.
+	\item Calculation of distance reached so far - a function of the x value of the athletes torso
+	\item Text showing the distance reached on the screen.
+	\item Recording the high score and displaying it on the screen
+	\item A User help box shown on game start-up
+	\item Checking whether the user has reached the end of the 100m and displaying the congratulations message if the player gets to 100m
 \end{enumerate}
 
 \section{Evaluation software}
-
+\label{sec:evalSoftware}
 To evaluate the project, I will be analysing the results from a user study. This analysis will be happening in the evaluation section, however a large amount of work went into implementing the testing environment so I will describe that here.
 
 % breakdown of user study sections used later
@@ -180,26 +231,33 @@ To evaluate the project, I will be analysing the results from a user study. This
 	\end{enumerate}
 }
 
-\begin{enumerate}
-	\item Web page hosting user study
 
-	As I wanted to get lots of participants to take part in my user study, I decided to host it on a web page so that participants can take part concurrently. It was also useful as I can host both versions of QWOP in iframes, embed Google forms as questionnaires, and record the actions of the user. The actions of the user such as key presses and distances reached over time can be analysed along with other data to evaluate the success of the game.
+	\subsection{Web page hosting user study}
+	\label{sec:webPage}
+
+
+	As I wanted to get lots of participants to take part in my user study, I decided to host it on a web page so that participants can take part concurrently. It was also useful to host it on a web page because I can host both versions of QWOP in iframes, embed Google forms as questionnaires, and record the actions of the user. The actions of the user such as key presses and distances reached over time can be analysed along with other data to evaluate the success of the game.
 
 	The main components of the web page are as follows:
 
 	\userStudySections
 
-    \item Server software to receive and store user study data
+    \subsection{Server software to receive and store user study data}
+    \label{sec:serverSoftware}
+
 
     I hosted the web page page on my SRCF web space. When the web page is recording data, it sends the data it has recorded to a PHP script at regular time intervals. This script records the data into separate files for each participant, so that all the data can be accessed in one place afterwards.
 
-    \item Chrome extension for reading distance from QWOP
+    \subsection{Chrome extension for reading distance from QWOP}
+    \label{sec:chromeExtension}
+
+todo: Start by telling me what the problem is.  Is it that the implementation didn't expose its distance variable to something else? You see I don't understand -- and it's your job to help me feel I do understand your program, and this needs you explaining in more detail :-)
 
     Later on in the implementation I discovered that I couldn't access the distance that the player had reached for the original QWOP. It it impossible to access data from the game when hosting the original website inside an iframe, since all the game data is inside an anonymous function.
     Unfortunately When attempting to run the game by taking the html, JavaScript and other local resources that it accessed, and running them myself, the game's canvas goes orange and the game doesn't start.
     Since running an edited version of the original website did not work, I tried accessing the colour values of the game's canvas, then I could use OCR to read the distance from the screen itself. Accessing the pixel values from the canvas inside the iframe didn't work as QWOP has a OpenGL setting that made the GLBuffer unreadable.s
     In the end however the distance was made accessible by creating a chrome extension that took a screenshot of the page and placed it in a canvas. Then the data collection page takes the section of the screenshot that contains the distance text, inverts the colours so that it's black text on a white background, and places it into a smaller canvas. Then a lightweight JavaScript OCR script called ocrad.js is used to to read the text. With a little editing of the script's output, it gave an accurate value.
-\end{enumerate}
+
 
 
 
@@ -214,36 +272,198 @@ The user study is made up of these sections, the design on which has been discus
 
 \userStudySections
 
-\section{Participant demographics}
+\section{Intro Questionnaire}
 
+The first questionnaire asked for the demographics of each participant.
 30 participants took part in the user study. This is a good number because...
+Figure \ref{demographics} shows the age and gender of the participants.
 
-
-The first questionnaire asked for the demographics of each participant. Figure \ref{demographics} shows the age and gender of the participants.
 
 \begin{figure}[tbh]
-\centerline{\includegraphics[scale=0.5]{participantDemographics.PNG}}
+\centerline{\includegraphics[scale=0.7]{participantDemographics.PNG}}
 \caption{Participant demographics}
 \label{demographics}
 \end{figure}
 
-The next question asked was whether the user had played QWOP beforehand. Here are the results:
-
-
-\begin{tabular}{ |c|c| }
-  \hline
-  Previous experience playing QWOP & Frequency of choice \\ \hline \hline 
-  A long time over multiple sessions & 1 \\ \hline
-  Longer than 30 minutes & 2 \\ \hline
-  Between 10 and 30 minutes & 3 \\ \hline
-  Less than 10 minutes & 5 \\ \hline
-  Never played before & 19 \\
-  \hline
-\end{tabular}
-
+The next question asked was whether the user had played QWOP beforehand, Figure \ref{previousExperienceTable} shows the options that were available to choose from and the frequency that the answers were picked.
 Most of the user hadn't played QWOP before.
+that matters because..???
 
-it effects it like ???
+
+\begin{figure}[tbh]
+\begin{center}
+\begin{tabular}{ |l|l| }
+  \hline
+  Previous experience playing QWOP   & Frequency of choice \\ \hline \hline 
+  Never played before                & 19 \\ \hline
+  Less than 10 minutes               & 5  \\ \hline
+  Between 10 and 30 minutes          & 3  \\ \hline
+  Longer than 30 minutes             & 2  \\ \hline
+  A long time over multiple sessions & 1  \\ \hline
+\end{tabular}
+\end{center}
+\caption{Previous experience of participants}
+\label{previousExperienceTable}
+\end{figure}
+
+
+The third question asked for how long each participant plays video games during a typical week outside term time. Figure \ref{previousExperienceTable} shows the options that were available to choose from and the frequency that the answers were picked.
+This matters because..???
+
+\begin{figure}[tbh]
+\begin{center}
+\begin{tabular}{ |p{8cm}|c| }
+  \hline
+Time spent playing video games per week during a typical week outside of term time & Frequency of response \\ \hline \hline
+Less than an hour      & 22 \\ \hline
+Between 1 and 5 hours  & 2  \\ \hline
+Between 5 and 20 hours & 4  \\ \hline
+More than 20 hours     & 2  \\ \hline
+\end{tabular}
+\end{center}
+\caption{Game playing experience of participants}
+\label{gamesExperienceTable}
+\end{figure}
+
+\section{Controlled experiment}
+
+After the introductory questionnaire, each participant is randomly placed into one of the two groups, each of which play the two versions of QWOP in a different order. Each game is played for 5 minutes before the page moves onto the next section. 
+The participant has 5 minutes to get as far as they can. Whenever they fall over they start again and can have as many restarts as they want in the 5 minutes.
+While each participant plays both versions, the keys being pressed and the distance reached is being recorded. Here I shall use this data to analyse whether my version is faithful to the original, and how they compare.
+
+Figure \ref{assorted} shows some examples of the distance recorded over time. Notice how the participants attempts to go forward, reach a distances, and then restart. Participant 2 reaches 85m at around 250 seconds.
+\begin{figure}[tbh]
+\centerline{\includegraphics[scale=0.39]{assortedLineGraphs.PNG}}
+\caption{A selection of Distance over time graphs}
+\label{assorted}
+\end{figure}
+
+To begin the analysis I shall compare the distances that the participants reach for each run; before they fall and restart or reach the end of the 5 minutes. Figure \ref{glaRestarts} shows a histogram of all of these restart distances over the 30 participants for my JavaScript remake, version gla. Figure \ref{fodRestarts} shows the same but for the original QWOP, version fod.
+
+\begin{figure}[tbh]
+\centerline{\includegraphics[scale=0.39]{glaRestarts.PNG}}
+\caption{Restart distances for version gla}
+\label{glaRestarts}
+\end{figure}
+\begin{figure}[tbh]
+\centerline{\includegraphics[scale=0.39]{fodRestarts.PNG}}
+\caption{Restart distances for version fod}
+\label{fodRestarts}
+\end{figure}
+
+One striking fact is that the total number of restarts is so close. the number of runs for version gla is 924, and for version fod it is 925. My version is very faithful to the original in this regard and it shows that their gameplay share a property...
+
+%faithful to the original.
+
+\begin{center}
+\begin{tabular}{ |p{3cm}|c| }
+  \hline
+Version& Average time of run (s)\\ \hline
+gla & 9.74 \\ \hline
+fod & 9.73 \\ \hline
+\end{tabular}
+\end{center}
+
+% 300*30/924 = 9.74 gla
+% 300*30/925 = 9.73 fod
+% This makes the data comparable?
+
+When comparing the restart distances of the two versions in Figure \ref{glaRestarts} and \ref{fodRestarts}, the graphs share a similar shape. As they share the same area, \ref{glaRestarts} is a stretched version of \ref{fodRestarts}
+
+
+
+
+\section{Second Questionnaire}
+
+The second questionnaire happens after the participants have played both versions of the game.
+Here are the questions, with the figures containing the data.
+and it contains the following questions aimed at comparing the two versions:
+
+\begin{enumerate}
+	\item Which version of the game do you think you were more successful at? Figure \ref{successfull}
+	\item Which version felt like you had more control over the athlete? Figure \ref{opinions}
+	\item Why do you think this was?
+	\item Do you think playing the first version of the game improved your performance in the second version? Figure \ref{firstHelpedSecond}
+	\item Which version did you enjoy more? Figure \ref{opinions}
+	\item Why do you think this was?
+\end{enumerate}
+
+Which version of the game do you think you were more successful at?
+could look at thought vs reality but doesn't seem that useful?
+
+Which version felt like you had more control over the athlete?
+see Fig \ref{opinions} 
+
+why ? open coding?
+
+first improved second?
+
+\begin{figure}[tbh]
+\begin{center}
+\begin{tabular}{ |p{6cm}|c|c|c| }
+  \hline
+Opinion whether playing the first& \multicolumn{3}{|c|}{Frequency of response} \\ \cline{2-4}
+helped improve the second& Group A& Group B&Total\\ \hline
+Definitely     & 1 & 5 & 6 \\ \hline
+Maybe          & 5 & 7 & 12\\ \hline
+I'm not sure   & 3 & 0 & 3 \\ \hline
+Maybe not      & 3 & 0 & 3 \\ \hline
+Definitely not & 3 & 3 & 6 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Participant opinion of whether playing the first game helped improve their score for the second, by group.}
+\label{firstHelpedSecond}
+\end{figure}
+
+
+\begin{figure}[tbh]
+\begin{center}
+\begin{tabular}{ |p{6cm}|c|c|c| }
+  \hline
+Version& \multicolumn{3}{|c|}{Frequency of response} \\ \cline{2-4}
+& Group A& Group B&Total\\ \hline\hline
+First played   & 8 & 5  & 13 \\ \hline
+Second played  & 7 & 10 & 17 \\ \hline\hline
+Version gla    & 8 & 10 & 18 \\ \hline
+Version fod    & 7 & 5  & 12 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Participant opinion of whether they were more successful at the first or second version.}
+\label{successfull}
+\end{figure}
+
+
+
+\begin{figure}[tbh]
+\begin{center}
+\begin{tabular}{ m{4cm}|c|c|c|c||c|c||c|c| }
+\cline{2-9}
+ & \multicolumn{2}{|c|}{Group A} & \multicolumn{2}{|c|}{Group B} & \multicolumn{4}{|c|}{Total over groups} \\
+\cline{2-9}
+% Which version...&First (gla)&Second (fod)&First (fod)&Second (gla)&gla&fod&First&Second \\ \hline
+&First &Second &First &Second &&&& \\
+&version &version &version &version &gla&fod&First&Second \\
+&(gla)&(fod)&(fod)&(gla)&&&& \\ \hline
+\multicolumn{1}{ |m{4cm}| }{Which version felt like you had more control over the athlete?}& 7 & 8 & 4 & 11 & 18 & 12 & 11 & 19 \\ \hline
+\multicolumn{1}{ |m{4cm}| }{Which version did you enjoy more?}   & 9 & 6 & 5 & 10 & 19 & 11 & 14 & 16  \\ \hline
+\end{tabular}
+\end{center}
+\caption{Results of participant choice of version}
+\label{opinions}
+\end{figure} 
+
+
+
+
+
+
+
+As stated in the proposal the (find quote) aim is not to exactly copy qwop?
+the stats show that it is similar
+i made some changes to make it easier and more fun for players
+new curve
+more fun - backed up by hci stuff?
+
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

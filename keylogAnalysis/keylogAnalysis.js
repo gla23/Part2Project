@@ -180,19 +180,19 @@ function onceAllKeylogDataIsLoadedIn() {
     //####################################################################################################
     // Add the 6 graphs for analysing changes of version, order of play, and participant groups
     width = 1600;
-    height = 400;
+    height = 600;
     graphId = addGraphSvgElementToPage(width,height,"graphsRoot","Histogram showing the distribution of the distances reached over all runs for version gla");
-    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[0].concat(allGlaRestartDistances[1]),"steelblue",230);
+    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[0].concat(allGlaRestartDistances[1]),"steelblue",320);
     graphId = addGraphSvgElementToPage(width,height,"graphsRoot","Histogram showing the distribution of the distances reached over all runs for version fod");
-    makeHistogram(graphId,[-4,40],0.5,allFodRestartDistances[0].concat(allFodRestartDistances[1]),"steelblue",230);
+    makeHistogram(graphId,[-4,40],0.5,allFodRestartDistances[0].concat(allFodRestartDistances[1]),"steelblue",320);
     graphId = addGraphSvgElementToPage(width,height,"graphsRoot","Histogram showing the distribution of the distances reached over all attempts made during the first version played");
-    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[0].concat(allFodRestartDistances[1]),"steelblue",230);
+    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[0].concat(allFodRestartDistances[1]),"steelblue",320);
     graphId = addGraphSvgElementToPage(width,height,"graphsRoot","Histogram showing the distribution of the distances reached over all attempts made during the second version played");
-    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[1].concat(allFodRestartDistances[0]),"steelblue",230);
+    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[1].concat(allFodRestartDistances[0]),"steelblue",320);
     graphId = addGraphSvgElementToPage(width,height,"graphsRoot","Histogram showing the distribution of the distances reached over all runs for participants in group A");
-    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[0].concat(allFodRestartDistances[0]),"steelblue",230);
+    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[0].concat(allFodRestartDistances[0]),"steelblue",320);
     graphId = addGraphSvgElementToPage(width,height,"graphsRoot","Histogram showing the distribution of the distances reached over all runs for participants in group B");
-    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[1].concat(allFodRestartDistances[1]),"steelblue",230);
+    makeHistogram(graphId,[-4,40],0.5,allGlaRestartDistances[1].concat(allFodRestartDistances[1]),"steelblue",320);
 
     
     //####################################################################################################
@@ -225,13 +225,33 @@ function onceAllKeylogDataIsLoadedIn() {
     male = [];
     female = [];
     highscores = {};
-    prevExperience = {}
+    prevExperience = {};
+    gamesExperience = {};
+    groupAMoreControl = {};
+    groupBMoreControl = {};
+    groupAPrefer = {};
+    groupBPrefer = {};
+    orderImproveA = {};
+    orderImproveB = {};
+    successfullA = {};
+    successfullB = {};
+
+    function addItem(item, object) {
+        if (object.hasOwnProperty(item)) {
+            object[item] += 1
+        } else {
+            object[item] = 1
+        }
+    }
+
     for(x in participantsData){
         participants.push(participantsData[x][1]);
         //######################################
         // Calculate demographics
         survey1 = participantsData[x][2]
+        survey2 = participantsData[x][3]
         survey1[2] = +survey1[2]
+        participantID = participantsData[x][1]
 
         // Age and gender
         if (survey1[3]=="Male"){
@@ -241,20 +261,47 @@ function onceAllKeylogDataIsLoadedIn() {
         }
 
         // Previous experience
-        if (prevExperience.hasOwnProperty(survey1[4]))
-        {
-            prevExperience[survey1[4]] += 1
+        addItem(survey1[4],prevExperience)
+        addItem(survey1[5],gamesExperience)
+
+        // Prefer
+        if (participantID<"45000") {
+            addItem(survey2[3],groupAMoreControl)
+            addItem(survey2[6],groupAPrefer)
+            addItem(survey2[5],orderImproveA)
+            addItem(survey2[2],successfullA)
         } else {
-            prevExperience[survey1[4]] = 1
+            addItem(survey2[3],groupBMoreControl)
+            addItem(survey2[6],groupBPrefer)
+            addItem(survey2[5],orderImproveB)
+            addItem(survey2[2],successfullB)
         }
+
+        console.log(survey2[7]);
+        //console.log(survey2[6]);
+
     }
-
-    console.log(prevExperience);
-
+    
+    // Age and gender
     graphId = addGraphSvgElementToPage(800,300,"others","Age and gender of the 30 participants");
     yAxisHeight = makeHistogram(graphId,[10,30],1,male.concat(female),"steelblue",20,[["Male Participants: 17","","steelblue"],["female participants: 13","","hotpink"],["Mean age: ","mean"]],"Number of participants","Age of participants");
     makeHistogram(graphId,[10,30],1,female,"hotpink",yAxisHeight,[]);
+    // Previous Experience
+    console.log(prevExperience);
+    console.log(gamesExperience);
 
+    // Results
+    console.log(survey2);
+    console.log("More control group A then B");
+    console.log(groupAMoreControl);
+    console.log(groupBMoreControl);
+    console.log("Prefer, group A then B");
+    console.log(groupAPrefer);
+    console.log(groupBPrefer);
+    console.log(orderImproveA);
+    console.log(orderImproveB);
+    console.log(successfullA);
+    console.log(successfullB);
 
 }
 
@@ -433,7 +480,7 @@ function makeHistogram(svgElementId,graphDomain,binSize,data,colour,yMin,textSpe
         {
             return (evalue >= graphDomain[1]);
         }
-    ).sort().toString();
+    ).sort().toString().replace(/,/g, ", ");;
 
     var formatCount = d3.format(",.0f");
 
