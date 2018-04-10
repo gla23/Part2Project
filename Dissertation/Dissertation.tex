@@ -98,9 +98,60 @@ alan physics model
 or 
 how you model the runner
 
-\section{Mathematical model of QWOP}
+\section{Mathematical model of the QWOP world}
 \label{mathModel}
-To create a representation of an athlete in physics it first helps to know how it is going to be modelled. So when preparing it was important to first design a mathematical model of an athlete that could later be instantiated during the implementation.
+% Model needed explanation
+To create QWOP in a physics simulation it first helps to know how it is going to be modelled. So when preparing it was important to first design a mathematical model of the QWOP world that could later be implemented in a physics simulation.
+
+\subsection{Planar rigid body mechanics}
+\label{prbm}
+
+The basis of this model is planar rigid body dynamics.
+% https://en.wikipedia.org/wiki/Rigid_body_dynamics
+As the floor that the athlete is standing on and the limbs of the athlete do not change size and do not need to deform, they can be modelled as rigid bodies.
+Save the floor, each of these rigid bodies represent one section of the athlete that has it's own position and rotation. For example the foot, upper leg and lower leg.
+%should insert some rbd formulas somewhere here?
+Planar rigid body mechanics uses kinematics, and solves the equations of motion described by Newton's second law to determine the motion of the bodies in the system.
+%The acceleration, velocity and position of the rigid bodies can be determined using kinematics, and by solving the equations of motion described by Newton's second law.
+Since this model can describe the acceleration, velocity and position of the individual rigid bodies over time, the development of the system as a whole under gravity can be simulated.
+% Finish this next
+With only basic planar rigid body dynamics, the limbs will just fall to the floor. So next I will describe some extensions to this model that will be made to emulate the behaviour of QWOP.
+
+\subsection{joints}
+\label{sub:joints}
+
+% Joints explanation
+Adjacent sections are connected by joints. For example the foot and lower leg are connected at the heel, and the lower leg and upper leg are connected at the knee.
+This is a constraint that the joints force the members to follow. For each joint-body connection, the joint stays in the same position relative to the frame of reference of the body - joints keep a consistent offset from each connected member. For example, the heel is always at the back of the foot, and the heel is always at the bottom of the lower leg. These two constraints work together in each joint to connect two limbs.
+
+% Angle limiting explanation
+Another constraint the joints keep is that the angle the joints rotate to is limited. For example the knee allows the lower leg to rotate up until the point where the knee is locked out. In the same way the joints in the model limit the angle they can rotate to.
+
+\subsection{collisions}
+\label{sub:collisions}
+% Collision boxes
+A final constraint the limbs follow is that they collide with the floor.
+Each rigid body has an area, and the areas of the limbs and the area of the floor cannot overlap, otherwise the athlete would fall through the floor.
+For this reason the model needs to take collisions between the limbs and floor into account. The collisions between the limbs do not however need to be taken into account, as one limb can go behind another in the 2D view the user can see.
+To model this each rigid body can have a rectangular collision box, specified by a width and height. The boxes for the limbs can then be stopped from entering the box for the floor.
+
+% So far rigid bodies and joints
+The QWOP world so far amounts to a set of rigid bodies and a set of joints on which the physics rules of planar rigid body dynamics can be applied.
+The set of rigid bodies will contain 13 in total; firstly a foot, lower leg, upper leg, lower arm and upper arm for each side of the body, and also a torso, head and finally the floor. Each of these have a width and height that define their collision box, a starting position, and a mass.
+The values of these variables are such that the floor is immoveable and spans the bottom of the world, and the attributes of the rigid bodies match the attributes of the limbs of the QWOP athlete.
+The set of joints contains 11 in total; a left and right heel, knee, hip, shoulder, elbow, and a neck. Each of these specify which two rigid bodies they join together, the offset from each of those bodies that the joint must stay, and the maximum and minimum angles between which the joints can rotate. These connect the limbs together in the right order and keep them together with the physical properties of an athlete.
+
+
+This model so far delivers an athlete with limbs that can rotate freely, move in Cartesian space and has correct joint constraints and collision checking. The last thing to add is the 
+
+forces
+rubber?
+
+joint constraints made up of an offset from the first joint it is connected to and an offset for the second joint it is connected to.
+	these work in two ways
+
+
+todo: make more graphs with the ordering like what Alastair said and then work out the t test and write that up in the prep.
 
 The first thing that I did to prepare was to get going with Phaser
 phaser is...
@@ -122,7 +173,7 @@ had to be done, before implementation could begin
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation ~4500
 \chapter{Implementation}
-todo: fix thish
+todo: fix this
 This section explains how the mathematical model of QWOP (explained in the Prep section) was implemented along with the evaluation scaffolding used during the user study.  Section \ref{sec:qwopImp} focuses on the implementation of QWOP (and perhaps explain what other subsections do). Section 3.2 (or 3.N if you've added more subsections to improve structure) explains the code written to produce and analyse the results of the user study.
 
 This chapter describes the implementation of the project, moving on from preparation in previous chapters. The main implementation tasks in the project were writing my version of QWOP, and writing the set of software used to perform the user study and evaluate the project. These can be divided as follows:
