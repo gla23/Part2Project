@@ -8,7 +8,7 @@
 \usepackage{docmute}   % only needed to allow inclusion of proposal.tex
 \usepackage{array}     % for tables
 \usepackage{nameref}
-
+\usepackage{csquotes}
 
 \graphicspath{ {Images/} }
 \raggedbottom                           % try to avoid widows and orphans
@@ -91,12 +91,8 @@ Though the objective of QWOP is simple, it has been notorious for being difficul
 \chapter{Preparation}
 \section{section 1}
 
-In this chapter I will discuss the preparation 
+In this chapter I will discuss the preparation that happened before the implementation of the project began.
 
-alan physics model
-	mathematical model of QWOP
-or 
-how you model the runner
 
 \section{Mathematical model of the QWOP world}
 \label{mathModel}
@@ -117,7 +113,7 @@ Since this model can describe the acceleration, velocity and position of the ind
 % Finish this next
 With only basic planar rigid body dynamics, the limbs will just fall to the floor. So next I will describe some extensions to this model that will be made to emulate the behaviour of QWOP.
 
-\subsection{joints}
+\subsection{Joints}
 \label{sub:joints}
 
 % Joints explanation
@@ -127,7 +123,7 @@ This is a constraint that the joints force the members to follow. For each joint
 % Angle limiting explanation
 Another constraint the joints keep is that the angle the joints rotate to is limited. For example the knee allows the lower leg to rotate up until the point where the knee is locked out. In the same way the joints in the model limit the angle they can rotate to.
 
-\subsection{collisions}
+\subsection{Collisions}
 \label{sub:collisions}
 % Collision boxes
 A final constraint the limbs follow is that they collide with the floor.
@@ -147,17 +143,68 @@ This model so far delivers an athlete with limbs that can rotate freely, move in
 forces
 rubber?
 
-joint constraints made up of an offset from the first joint it is connected to and an offset for the second joint it is connected to.
-	these work in two ways
+\section{Understanding Phaser}
+\label{phaser}
 
+As decided in the Project Proposal, I used Phaser to create my JavaScript version of QWOP.
+One of the first things that I did to prepare was to start learning how Phaser works.
+Here I shall give a brief description of what Phaser is and how it works.
+
+Phaser is a Desktop and mobile HTML5 game framework that is designed to take care of the mundane tasks involved with developing a game so that development can be sped up. It helps keep focus on the creative aspect of game design as time is not wasted on reinventing the wheel.
+
+Phaser handles jobs such as creating the canvas the game will be drawn to, and provides frameworks that handle compatibility issues. For example it provides access to simple methods for drawing graphics onto the canvas, and responding to user input, whether on a mobile device with a touch screen, or on a desktop with a keyboard and mouse.
+%It also organises execution flow around the program and 
+
+To take advantage of these features, a developer first imports the Phaser library by adding the minified script to their web page. %using this html code:
+
+
+\begin{displayquote}
+	\texttt{<script type="text/javascript" src="js/phaser.min.js"></script>}
+\end{displayquote}
+
+It is then possible to start off ones JavaScript code with a line similar to this:
+
+\begin{displayquote}
+	\texttt{var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'game-name', { preload: preloadFunction, create: createFunction, update: updateFunction, render: renderFunction});}
+\end{displayquote}
+
+This code shows how the Game object is created.
+% I shall explain this code as it explains Phaser.
+The Game object is the main controller for the entire Phaser game. 
+First of all it handles the boot process. The boot process creates the canvas dimensioned to the width and height parameters provided and initialises Objects and data structures that will be used later.
+After it has initialised the game, control flow is passed to code the developer has written. 
+Phaser simplifies controlling the execution flow over the lifetime of the game.
+It does this by giving the developer access to execute code at key moments in execution, so that the user doesn't have to write a lot of boilerplate code to organise this themselves.
+
+The user specifies which code should be executed where using the JavaScript object passes as argument 4.
+One of its key-value pairs is \texttt{update:updateFunction} so the identifier \texttt{updateFunction} is given to be used for Phaser's \texttt{update} operation. This means that the contents of updateFunction will be run once every frame.
+In a similar way the developer can write a \texttt{preload} function that loads assets before the game starts that will be run at the beginning of the game.
+
+\subsection{Sprites}
+
+Another feature of Phaser is its use of sprites.
+In the Phaser documentation \footnote{definition from https://photonstorm.github.io/phaser-ce/Phaser.Sprite.html}
+sprites are described like so:
+
+\begin{displayquote}
+`At its most basic a Sprite consists of a set of coordinates and a texture that is rendered to the canvas. They also contain additional properties allowing for physics motion (via Sprite.body), input handling (via Sprite.input), events (via Sprite.events), animation (via Sprite.animations), camera culling and more.'
+\end{displayquote}
+
+\subsection{Statistical tests}
+
+% https://www.graphpad.com/support/faqid/1790/
+To prepare for the evaluation I investigated some statistical tests. 
+Since lots of data is going to be collected in the evaluation, 
+statistical tests needed to be compared to find appropriate ways of comparing this data.
+
+For example to compare the distance reached for the two games, a t-test would be inappropriate 
+as the participants are trying to go forwards and so the distances reached will likely not be from a Gaussian.
+since data will likely not be paired,
+
+todo: keep writing this - add other ideas used in eval and how prepped
 
 todo: make more graphs with the ordering like what Alastair said and then work out the t test and write that up in the prep.
 
-The first thing that I did to prepare was to get going with Phaser
-phaser is...
-	objects sprites
-	control flow/code sections
-		pseudo code?
 
 Next I learnt how to do these thingys
 stuff in course
@@ -173,33 +220,39 @@ had to be done, before implementation could begin
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation ~4500
 \chapter{Implementation}
-todo: fix this
-This section explains how the mathematical model of QWOP (explained in the Prep section) was implemented along with the evaluation scaffolding used during the user study.  Section \ref{sec:qwopImp} focuses on the implementation of QWOP (and perhaps explain what other subsections do). Section 3.2 (or 3.N if you've added more subsections to improve structure) explains the code written to produce and analyse the results of the user study.
+This section details the implementation of the mathematical model of QWOP 
+designed in Section \ref{mathModel}, and the implementation of the evaluation scaffolding used during the user study.
+Section \ref{sec:qwopImp} focuses on the implementation of QWOP
+(need to add what other subsections do).
+Section \ref{studyimpl} explains the code written to produce and analyse the results of the user study.
+(again add subsections of this once done) 
 
-This chapter describes the implementation of the project, moving on from preparation in previous chapters. The main implementation tasks in the project were writing my version of QWOP, and writing the set of software used to perform the user study and evaluate the project. These can be divided as follows:
+todo: rewrite chapter, fit with prep
 
-\begin{itemize}
-  \item Section \ref{sec:qwopImp} \nameref{sec:qwopImp}
-	\begin{itemize}
-      \item Section \ref{sec:jointsInPhysics} \nameref{sec:jointsInPhysics}
-  	  \item Section \ref{sec:athleteModel} \nameref{sec:athleteModel}
-  	  \item Section \ref{sec:graphics} \nameref{sec:graphics}
-  	  \item Section \ref{sec:gameFlow} \nameref{sec:gameFlow}
-	\end{itemize}
-  \item Section \ref{sec:evalSoftware} \nameref{sec:evalSoftware}
-   \begin{itemize}
-      \item Section \ref{sec:webPage} \nameref{sec:webPage}
-      \item Section \ref{sec:serverSoftware} \nameref{sec:serverSoftware}
-      \item Section \ref{sec:chromeExtension} \nameref{sec:chromeExtension}
-    \end{itemize}
-\end{itemize}
+% This chapter describes the implementation of the project, moving on from preparation in previous chapters. The main implementation tasks in the project were writing my version of QWOP, and writing the set of software used to perform the user study and evaluate the project. These can be divided as follows:
+
+% \begin{itemize}
+%   \item Section \ref{sec:qwopImp} \nameref{sec:qwopImp}
+% 	\begin{itemize}
+%       \item Section \ref{sec:jointsInPhysics} \nameref{sec:jointsInPhysics}
+%   	  \item Section \ref{sec:athleteModel} \nameref{sec:athleteModel}
+%   	  \item Section \ref{sec:graphics} \nameref{sec:graphics}
+%   	  \item Section \ref{sec:gameFlow} \nameref{sec:gameFlow}
+% 	\end{itemize}
+%   \item Section \ref{studyimpl} \nameref{studyimpl}
+%    \begin{itemize}
+%       \item Section \ref{sec:webPage} \nameref{sec:webPage}
+%       \item Section \ref{sec:serverSoftware} \nameref{sec:serverSoftware}
+%       \item Section \ref{sec:chromeExtension} \nameref{sec:chromeExtension}
+%     \end{itemize}
+% \end{itemize}
 
 \section{Phaser Implementation of QWOP}
 \label{sec:qwopImp}
 Phaser is a JavaScript framework designed for making games. I have described how it works in the preparation section, and will now break down how it was used to make the different sections of the game.
 
 
-\subsection{Modelling joints in physics }
+\subsection{Modelling joints in physics}
 \label{sec:jointsInPhysics}
 The first hurdle was to work out how to create a body in Phaser's physics engine.   
 \ref{swingingRods} shows my first prototype for modelling joints and limbs, each rod is a sprite, and the joints between them are fixed together by Phaser's 'revoluteContraint's. This allows them to swing freely.
@@ -268,46 +321,53 @@ Finally all the other components of the game were added:
 	\item Checking whether the user has reached the end of the 100m and displaying the congratulations message if the player gets to 100m
 \end{enumerate}
 
-\section{Evaluation software}
-\label{sec:evalSoftware}
+\section{Implementation of evaluation software}
+\label{studyimpl}
+
 To evaluate the project, I will be analysing the results from a user study. This analysis will be happening in the evaluation section, however a large amount of work went into implementing the testing environment so I will describe that here.
 
+The center of the study is a controlled experiment, in which participants are randomly placed into one of two groups, each of which play the two versions of QWOP in a different order.
+Each game is played for 5 minutes while the key presses and distances reached for each participant are recorded.
+Either side of the experiment there is a questionnaire.
+% The first questionnaire finds out the demographics and previous experience of each participant. 
+%The second questionnaire records the opinions of the participant through questions such as `which version did you enjoy more'. 
+Next I will explain the implementation of the evaluation scaffolding used during the user study.
+
 % breakdown of user study sections used later
-\newcommand{\userStudySections}{
-	\begin{enumerate}
-		\item A html page that guides the participant through the sections of the study
-		\item An embedded Google form that finds out demographics and the previous experience of each participant.
-		\item An A/B test. Each participant is randomly placed into one of the two groups, each of which play the two versions of QWOP in a different order. Each game is played for 5 minutes before the page moves onto the next section. While each game is played, the key presses and distances reached for each participant are recorded. The benefit of doing a randomised control trial is that selection bias is minimised. The splitting of participants into two groups means that the effect of playing one game before the other can be taken into consideration and not affect the analysis.
-		\item A final questionnaire that gives feedback on the two versions
-	\end{enumerate}
-}
+% \newcommand{\userStudySections}{
+% 	\begin{enumerate}
+% 		\item A html page that guides the participant through the sections of the study
+% 		\item An embedded Google form that finds out demographics and the previous experience of each participant.
+% 		\item An A/B test. Each participant is randomly placed into one of the two groups, each of which play the two versions of QWOP in a different order. Each game is played for 5 minutes before the page moves onto the next section. While each game is played, the key presses and distances reached for each participant are recorded. The benefit of doing a randomised control trial is that selection bias is minimised. The splitting of participants into two groups means that the effect of playing one game before the other can be taken into consideration and not affect the analysis.
+% 		\item A final questionnaire that gives feedback on the two versions
+% 	\end{enumerate}
+% }
 
 
-	\subsection{Web page hosting user study}
-	\label{sec:webPage}
+\subsection{Web page hosting user study}
+\label{sec:webPage}
+
+To host the instrumented software I wrote a webpage that guides the users through the sections of the study. 
+As I wanted to get lots of participants to take part in my user study, I wrote a web page to host the study so that participants could take part concurrently. It was also useful to host it on a web page because I can host both versions of QWOP in iframes, embed Google forms as questionnaires, and record the actions of the user. The actions of the user such as key presses and distances reached over time can be analysed along with other data to evaluate the success of the game.
+
+images of page
+
+\subsection{Server software to receive and store user study data}
+\label{sec:serverSoftware}
 
 
-	As I wanted to get lots of participants to take part in my user study, I decided to host it on a web page so that participants can take part concurrently. It was also useful to host it on a web page because I can host both versions of QWOP in iframes, embed Google forms as questionnaires, and record the actions of the user. The actions of the user such as key presses and distances reached over time can be analysed along with other data to evaluate the success of the game.
+I hosted the web page page on my SRCF web space. When the web page is recording data, it sends the data it has recorded to a PHP script at regular time intervals. This script records the data into separate files for each participant, so that all the data can be accessed in one place afterwards.
 
-	The main components of the web page are as follows:
+\subsection{Chrome extension for reading distance from QWOP}
+\label{sec:chromeExtension}
 
-	\userStudySections
+% todo: Start by telling me what the problem is.  Is it that the implementation didn't expose its distance variable to something else? You see I don't understand -- and it's your job to help me feel I do understand your program, and this needs you explaining in more detail :-)
+%todo: redo with alan's comments
 
-    \subsection{Server software to receive and store user study data}
-    \label{sec:serverSoftware}
-
-
-    I hosted the web page page on my SRCF web space. When the web page is recording data, it sends the data it has recorded to a PHP script at regular time intervals. This script records the data into separate files for each participant, so that all the data can be accessed in one place afterwards.
-
-    \subsection{Chrome extension for reading distance from QWOP}
-    \label{sec:chromeExtension}
-
-todo: Start by telling me what the problem is.  Is it that the implementation didn't expose its distance variable to something else? You see I don't understand -- and it's your job to help me feel I do understand your program, and this needs you explaining in more detail :-)
-
-    Later on in the implementation I discovered that I couldn't access the distance that the player had reached for the original QWOP. It it impossible to access data from the game when hosting the original website inside an iframe, since all the game data is inside an anonymous function.
-    Unfortunately When attempting to run the game by taking the html, JavaScript and other local resources that it accessed, and running them myself, the game's canvas goes orange and the game doesn't start.
-    Since running an edited version of the original website did not work, I tried accessing the colour values of the game's canvas, then I could use OCR to read the distance from the screen itself. Accessing the pixel values from the canvas inside the iframe didn't work as QWOP has a OpenGL setting that made the GLBuffer unreadable.s
-    In the end however the distance was made accessible by creating a chrome extension that took a screenshot of the page and placed it in a canvas. Then the data collection page takes the section of the screenshot that contains the distance text, inverts the colours so that it's black text on a white background, and places it into a smaller canvas. Then a lightweight JavaScript OCR script called ocrad.js is used to to read the text. With a little editing of the script's output, it gave an accurate value.
+Later on in the implementation I discovered that I couldn't access the distance that the player had reached for the original QWOP. It it impossible to access data from the game when hosting the original website inside an iframe, since all the game data is inside an anonymous function.
+Unfortunately When attempting to run the game by taking the html, JavaScript and other local resources that it accessed, and running them myself, the game's canvas goes orange and the game doesn't start.
+Since running an edited version of the original website did not work, I tried accessing the colour values of the game's canvas, then I could use OCR to read the distance from the screen itself. Accessing the pixel values from the canvas inside the iframe didn't work as QWOP has a OpenGL setting that made the GLBuffer unreadable.s
+In the end however the distance was made accessible by creating a chrome extension that took a screenshot of the page and placed it in a canvas. Then the data collection page takes the section of the screenshot that contains the distance text, inverts the colours so that it's black text on a white background, and places it into a smaller canvas. Then a lightweight JavaScript OCR script called ocrad.js is used to to read the text. With a little editing of the script's output, it gave an accurate value.
 
 
 
@@ -315,15 +375,71 @@ todo: Start by telling me what the problem is.  Is it that the implementation di
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % Evaluation (eval+conc ~ 2500)
 \chapter{Evaluation}
-\section{success criteria?}
+\section{Success Criteria}
 
-\section{User Study}
-To evaluate the project I have performed a user study.
-The user study is made up of these sections, the design on which has been discussed in the implementation:
+%In my project proposal the success criteria is defined like so:
+The project proposal talks about the aims of the project like so:
 
-\userStudySections
+\begin{displayquote}
+At the end of the project I expect to be able to demonstrate a game similar to that of the original QWOP [...] although I am not aiming to replicate the behaviour of the original QWOP exactly [...]
+\end{displayquote}
+\begin{displayquote}
+The athlete should have the same physical qualities that make it seem human, and the game should have the same gameplay items that make it work. The Work to be done section breaks down how this will be done in more detail.
+I propose to test how successful the project is with a user study. Since the quality of a game is subjective, it is appropriate to do a user study to evaluate the project.
+\end{displayquote}
 
-\section{Intro Questionnaire}
+I shall now clarify these objectives of the project into a success criteria.
+The rest of the evaluation will be aimed at showing with evidence that these criteria have been met.
+The success criteria are:
+
+
+\begin{enumerate} 
+	\item My JavaScript version is faithful to the original QWOP; it contains the same mechanics, 
+	%that the player experiences in the same way
+	that gives the player a similar experience.
+	\item My version will be different in some aspects, to the improvement of the game.
+\end{enumerate}
+
+Since measuring `improvement' is subjective, enjoyment of the player is a good metric to use. 
+% The remake is supposed to work like the original in the way a user interacts with it and plays the game - has the same game mechanics
+% but even though it should be faithful to the original in the way it works, the intent was to make it different in order that more people would find it enjoyable.
+% so success is it works in a similar way, but is different in a way that makes it more fun.
+
+% I shall now show that my project meets these objectives with the 
+
+% the stats show that it is similar
+% i made some changes to make it easier and more fun for players
+% new curve
+% more fun - backed up by hci stuff?
+
+
+% I have undertaken a controlled experiment with instrumented software and made use of A/B testing to allow you to control for ordering effects. You have used survey methods to perform both quantitative and qualitative assessment of user perceptions of your software.
+
+% there is conclusion to sum up?
+
+% Sections of study in prose
+To evaluate the project I have performed a user study. 
+Section \ref{studyimpl} of the Implementation chapter shows the implementation of the code used in the user study.
+The rest of this chapter will go into detail explaining the design choices for the user study, and analyse its results.
+
+The center of the study is a controlled experiment. Participants are randomly placed into one of two groups, each of which play the two versions of QWOP in a different order.
+Each game is played for 5 minutes while the key presses and distances reached for each participant are recorded. More detail and analysis of this data is in Section \ref{controlled experiment results}
+
+Before the participants take part in the controlled experiment, they are asked to fill in a questionnaire asking for their demographics and previous experience of playing QWOP and other video games. After the controlled experiment, there is another questionnaire that determines the participant's opinion of the two versions they have played.
+Sections \ref{q1} and \ref{q2} show the design and results of these questionnaires.
+
+
+%The user study is made up of these sections, the design on which has been discussed in the implementation:
+
+% The benefit of doing a randomised control trial is that selection bias is minimised. The splitting of participants into two groups means that the effect of playing one game before the other can be taken into consideration and not affect the analysis.
+
+% other things that can go in
+% 	demographics broad summary
+% 	line graph sample
+% 	3 hist
+
+\section{Intro Questionnaire Responses}
+\label{q1}
 
 The first questionnaire asked for the demographics of each participant.
 30 participants took part in the user study. This is a good number because...
@@ -376,8 +492,8 @@ More than 20 hours     & 2  \\ \hline
 \label{gamesExperienceTable}
 \end{figure}
 
-\section{Controlled experiment}
-
+\section{Controlled experiment results}
+\label{controlled experiment results}
 After the introductory questionnaire, each participant is randomly placed into one of the two groups, each of which play the two versions of QWOP in a different order. Each game is played for 5 minutes before the page moves onto the next section. 
 The participant has 5 minutes to get as far as they can. Whenever they fall over they start again and can have as many restarts as they want in the 5 minutes.
 While each participant plays both versions, the keys being pressed and the distance reached is being recorded. Here I shall use this data to analyse whether my version is faithful to the original, and how they compare.
@@ -421,10 +537,14 @@ fod & 9.73 \\ \hline
 
 When comparing the restart distances of the two versions in Figure \ref{glaRestarts} and \ref{fodRestarts}, the graphs share a similar shape. As they share the same area, \ref{glaRestarts} is a stretched version of \ref{fodRestarts}
 
+\subsection{Investigation of Learning Bias}
 
+todo: this bit
+%One thing you’ve not yet done in the Evaluation is see if there is a learning bias between the first and second versions the participants tried. For example, is it the case that those who used fod first, then did better at gla than those who did gla first? You should take advantage of your experimental design to test this.
 
 
 \section{Second Questionnaire}
+\label{q2}
 
 The second questionnaire happens after the participants have played both versions of the game.
 Here are the questions, with the figures containing the data.
@@ -438,6 +558,9 @@ and it contains the following questions aimed at comparing the two versions:
 	\item Which version did you enjoy more? Figure \ref{opinions}
 	\item Why do you think this was?
 \end{enumerate}
+
+say about answers to choose from and why good from
+%https://www.tech.cam.ac.uk/Ethics_guidance/Survey-Methods
 
 Which version of the game do you think you were more successful at?
 could look at thought vs reality but doesn't seem that useful?
@@ -506,14 +629,6 @@ Version fod    & 7 & 5  & 12 \\ \hline
 
 
 
-
-
-
-As stated in the proposal the (find quote) aim is not to exactly copy qwop?
-the stats show that it is similar
-i made some changes to make it easier and more fun for players
-new curve
-more fun - backed up by hci stuff?
 
 
 
