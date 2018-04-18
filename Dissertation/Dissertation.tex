@@ -203,7 +203,7 @@ since data will likely not be paired,
 
 todo: keep writing this - add other ideas used in eval and how prepped
 
-todo: make more graphs with the ordering like what Alastair said and then work out the t test and write that up in the prep.
+todo: make more graphs with the orderings, work out the t test and write that up in the prep.
 
 
 Next I learnt how to do these thingys
@@ -492,33 +492,54 @@ More than 20 hours     & 2  \\ \hline
 \label{gamesExperienceTable}
 \end{figure}
 
+
+
 \section{Controlled experiment results}
 \label{controlled experiment results}
-After the introductory questionnaire, each participant is randomly placed into one of the two groups, each of which play the two versions of QWOP in a different order. Each game is played for 5 minutes before the page moves onto the next section. 
-The participant has 5 minutes to get as far as they can. Whenever they fall over they start again and can have as many restarts as they want in the 5 minutes.
-While each participant plays both versions, the keys being pressed and the distance reached is being recorded. Here I shall use this data to analyse whether my version is faithful to the original, and how they compare.
 
-Figure \ref{assorted} shows some examples of the distance recorded over time. Notice how the participants attempts to go forward, reach a distances, and then restart. Participant 2 reaches 85m at around 250 seconds.
+
+In this section, the controlled assessment will be explained, and the data recorded during the controlled experiment will be presented and analysed.
+%While each participant plays both versions, the keys being pressed and the distance reached is being recorded. Here I shall use this data to analyse whether my version is faithful to the original, and how they compare.
+
+During the controlled experiment each participant was randomly placed into one of two groups.
+The two groups play both versions of the game with instrumented code added. This allowed me to record the keys that the participants pressed, and the distance that they had travelled over time. The implementation of the instrumented software is described in the Implementation chapter, Section \ref{studyimpl}.
+Before the participants took part in the survey, they gave consent for data to be collected from their usage of the software. Consent was given when participants signed a form explaining that they understood that the software instrumented, and that the data was being collected from their usage. It also explained that they could opt out of the data collection at any point if they wished. scans of the sheets can be found at: todo
+%Each participant's usage of instrumented software is recorded.
+Group A played my version (version gla) first and then played the original (version fod). Group B played them in the opposite order.
+Each game was played for 5 minutes. When a participant moved on to a section of the user study where one of the games is played, a timer is started. When the 5 minutes is up, the page moves onto the next section. Between the two games there is a break page where the participant can press next when they are ready for the second version.
+Participants have these 5 minutes to get as far as they can. Whenever they fall over they start again and can have as many restarts as they want in the 5 minutes. Figure \ref{assorted} shows examples of the distance some of the participants reached recorded over time.
 \begin{figure}[tbh]
 \centerline{\includegraphics[scale=0.39]{assortedLineGraphs.PNG}}
 \caption{A selection of Distance over time graphs}
 \label{assorted}
 \end{figure}
 
-To begin the analysis I shall compare the distances that the participants reach for each run; before they fall and restart or reach the end of the 5 minutes. Figure \ref{glaRestarts} shows a histogram of all of these restart distances over the 30 participants for my JavaScript remake, version gla. Figure \ref{fodRestarts} shows the same but for the original QWOP, version fod.
+
+\subsection{Restart Distances}
+\label{restartDistances}
+
+In Figure \ref{assorted} one can see the participants attempt to go forward, reach a distance, and then restart. 
+%Participant 2 reaches 85m at around 250 seconds.
+To begin the analysis I shall compare the distances that the participants reach at the end of each run; before they fall and restart, or run out of time.
+Figure \ref{glaRestarts} shows a histogram of all of these restart distances over the 30 participants for my JavaScript remake, version gla. Figure \ref{fodRestarts} shows the same but for the original QWOP, version fod.
+These histograms contain all the restart distances for each version, and includes both participant groups.
+The affect of the order a participant played the games is analysed later, as Section \ref{learningBias} investigates the learning bias of playing the other version first.
 
 \begin{figure}[tbh]
 \centerline{\includegraphics[scale=0.39]{glaRestarts.PNG}}
 \caption{Restart distances for version gla}
 \label{glaRestarts}
 \end{figure}
+
 \begin{figure}[tbh]
 \centerline{\includegraphics[scale=0.39]{fodRestarts.PNG}}
 \caption{Restart distances for version fod}
 \label{fodRestarts}
 \end{figure}
 
-One striking fact is that the total number of restarts is so close. the number of runs for version gla is 924, and for version fod it is 925. My version is very faithful to the original in this regard and it shows that their gameplay share a property...
+The first thing to notice is that... good stats words
+It is striking that the total number of restarts is so close. The number of runs for version gla is 924, and for version fod it is 925.
+My version is very faithful to the original in this regard and it shows that their gameplay share the 
 
 %faithful to the original.
 
@@ -538,8 +559,9 @@ fod & 9.73 \\ \hline
 When comparing the restart distances of the two versions in Figure \ref{glaRestarts} and \ref{fodRestarts}, the graphs share a similar shape. As they share the same area, \ref{glaRestarts} is a stretched version of \ref{fodRestarts}
 
 \subsection{Investigation of Learning Bias}
+\label{learningBias}
 
-todo: this bit
+
 %One thing you’ve not yet done in the Evaluation is see if there is a learning bias between the first and second versions the participants tried. For example, is it the case that those who used fod first, then did better at gla than those who did gla first? You should take advantage of your experimental design to test this.
 
 
